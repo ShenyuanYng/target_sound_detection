@@ -5,25 +5,6 @@ from datasets.fsd50k_cache import file_sha256
 from datasets.train_split import video_id
 
 
-def audit_active_snr(meta):
-    """Check measured active SNR, allowing the declared bounded-silence fallback."""
-    assert meta['snr_definition'] == 'active'
-    assert meta['zero_mean'] is True
-    assert meta['snr_scaling'] == 'active_power_ratio_foreground_gain'
-    requested, actual = meta['snr_db'], meta['snr_db_exported']
-    assert np.isfinite(requested)
-    assert actual is None or np.isfinite(actual)
-    met = actual is not None and abs(actual - requested) < 1e-4
-    assert meta['snr_target_met'] == met
-    if meta['rms_fallback'] == 'none':
-        assert meta['active_frame_count'] > 0 and met
-    else:
-        assert meta['rms_fallback'] == 'crop_rms_with_threshold_floor'
-        assert meta['active_frame_count'] == 0
-        assert actual is None or actual <= requested + 1e-4
-        limit = 10 ** ((requested - meta['active_threshold_dbfs']) / 20)
-        assert 0 <= meta['target_gain'] <= limit * (1 + 1e-6)
-
 def equal_samples(left, right):
     for a, b in zip(left, right):
         assert a.keys() == b.keys()

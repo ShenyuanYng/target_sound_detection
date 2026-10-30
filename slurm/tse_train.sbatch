@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Submission resources and node configuration are frozen by submit_tse_dual_wrong.py.
+# Submission resources and node configuration are frozen by submit_training.py.
 set -euo pipefail
 trap 'exit 143' TERM
 cd "${SLURM_SUBMIT_DIR:?Submit from the project directory}"

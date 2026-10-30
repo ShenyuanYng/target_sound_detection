@@ -1,24 +1,25 @@
 """Single FSD stem extraction with exact-MID conflict filtering and fixed CV.
 
-Only mixture generation is reused from SED. No logmel, frame labels, condition
-expansion, or mixture-only standard-deviation normalization is performed.
+Waveform mixtures and immutable CV replay are owned by this TSE dataset.
 """
 from collections import Counter, defaultdict
 import csv
+import fcntl
 import json
+import os
 from pathlib import Path
+import tempfile
 
 import numpy as np
 import scipy
 import soundfile as sf
 from torch.utils.data import Dataset
 
-from datasets.audioset_fsd50k_mix_dataset import AudioSetFSD50KMixDataset, digest, GEOMETRY_KEYS
 from datasets.fsd50k_cache import file_sha256, read_cached_fsd
 from datasets.mix_background_audit import audit_backgrounds
 from datasets.mix_fsd_audit import audit_fsd_pool
 from datasets.active_rms import make_snr_mixture
-from datasets.mix_utils import (read_mono_waveform, sample_snr_db,
+from datasets.mix_utils import (digest, GEOMETRY_KEYS, read_mono_waveform, sample_snr_db,
                                 validate_snr_db_range)
 from datasets.paths.audioset_paths import load_class_map, resolve_path
 from datasets.paths.fsd50k_paths import read_fsd_dev_index
@@ -160,10 +161,8 @@ class TSEMixDataset(Dataset):
                 versions=dict(numpy=np.__version__, scipy=scipy.__version__, soundfile=sf.__version__),
                 code={name: file_sha256(Path(__file__).with_name(name + '.py')) for name in
                       ('tse_dataset', 'mix_utils', 'active_rms', 'fsd50k_cache',
-                       'mix_background_audit', 'mix_fsd_audit', 'audioset_fsd50k_mix_dataset')})
-            # Reuse locking, atomic publication, setting and row-integrity checks.
-            self.manifest = AudioSetFSD50KMixDataset._load_or_create_manifest(
-                self, Path(cv_manifest_path), settings)
+                       'mix_background_audit', 'mix_fsd_audit')})
+            self.manifest = self._load_or_create_manifest(Path(cv_manifest_path), settings)
             counts = Counter(row['target_mid'] for row in self.manifest['rows'])
             observed_multi = sum(is_multilabel(self.fsd_by_id[r['fsd_id']])
                                  for r in self.manifest['rows'])
@@ -171,6 +170,29 @@ class TSEMixDataset(Dataset):
                 cv_multilabel_sample_count=observed_multi,
                 cv_multilabel_sample_fraction=observed_multi / len(self.path_list),
                 cv_manifest_rows_sha256=self.manifest['rows_sha256'])
+
+    def _load_or_create_manifest(self, path, settings):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.with_suffix(path.suffix + '.lock').open('a') as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            if path.exists():
+                saved = json.loads(path.read_text())
+                if saved.get('schema') != 1 or saved.get('settings') != settings:
+                    raise ValueError('CV manifest settings/inventory changed; use a new manifest path')
+                if saved.get('rows_sha256') != digest(saved['rows']):
+                    raise ValueError('CV manifest rows checksum mismatch')
+                if [r['background_id'] for r in saved['rows']] != [e['id'] for e in self.path_list]:
+                    raise ValueError('CV manifest background order/inventory mismatch')
+                if any('snr_db' not in r or not isinstance(r['snr_db'], (int, float)) or
+                       not np.isfinite(r['snr_db']) for r in saved['rows']):
+                    raise ValueError('CV manifest requires a finite snr_db for every sample')
+                return saved
+            saved = self._generate_manifest(settings)
+            with tempfile.NamedTemporaryFile(mode='w', dir=path.parent, delete=False) as handle:
+                json.dump(saved, handle, indent=2, allow_nan=False)
+                temporary = handle.name
+            os.replace(temporary, path)
+            return saved
 
     def __len__(self):
         return len(self.path_list)
@@ -294,7 +316,7 @@ def create_tse_dataset(hp, partition, path_list=None, is_training=None):
     resolve = lambda p: resolve_path(p, hp.data_path)
     pools, _ = read_fsd_dev_index(resolve(hp.mix_fsd_dev_audio),
         resolve(hp.mix_fsd_ground_truth), resolve(hp.class_map_path))
-    # The shared SED index keeps only mapped labels. Preserve original annotation
+    # The FSD index keeps only mapped labels. Preserve original annotation
     # multiplicity for TSE ambiguity reports without changing that index's API.
     with (Path(resolve(hp.mix_fsd_ground_truth)) / 'dev.csv').open(newline='', encoding='utf-8-sig') as handle:
         original_mids = {row['fname'].strip(): sorted(set(m.strip() for m in row['mids'].split(',')))

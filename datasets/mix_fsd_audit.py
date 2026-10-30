@@ -5,9 +5,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
-from pathlib import Path
-import tempfile
 
 import numpy as np
 import soundfile as sf
@@ -67,21 +64,3 @@ def audit_fsd_pool(entries, *, split, progress=None):
         effective_count=len(entries)-len(excluded)-len(invalid), scanned=True,
         zero_mono_count=len(excluded), invalid_count=len(invalid), excluded=excluded,
         invalid=invalid, source_inventory_sha256=inventory.hexdigest())
-
-
-def save_fsd_audit(path, report, entries):
-    """Atomically publish a derived report outside all original audio directories."""
-    path = Path(path).resolve()
-    for parent in {Path(e['audio_path']).resolve().parent for e in entries}:
-        if path == parent or parent in path.parents:
-            raise ValueError('FSD audit report must be outside original audio directories')
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = None
-    try:
-        with tempfile.NamedTemporaryFile(mode='w', dir=path.parent, delete=False) as handle:
-            temporary = handle.name
-            json.dump(report, handle, indent=2, allow_nan=False)
-        os.replace(temporary, path)
-    finally:
-        if temporary is not None and os.path.exists(temporary):
-            os.unlink(temporary)

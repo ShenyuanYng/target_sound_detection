@@ -28,8 +28,7 @@ TensorBoard、指标、checkpoint 和调度日志。历史 TSE 实验留在原�
 | `tse_strong_dual_fsd_hierarchy_v2.yaml` | 层级标签归约后的 188 类版本 |
 | `tse_hierarchy_v2_pilot_10pct_bf16.yaml` | 保留现有 10%/BF16 pilot 设置与诊断 |
 
-配置都在 `exp_defs/`。历史命名配置 `tse_strong_fsd50k_b4_lr1e4.yaml` 也保留，
-新提交优先使用主配置。依赖版本见 `requirements.txt`；可继续使用现有 `audioset` 环境。
+配置都在 `exp_defs/`。依赖版本见 `requirements.txt`；可继续使用现有 `audioset` 环境。
 
 ## 提交新训练
 
@@ -66,11 +65,34 @@ python resume_training.py --run-dir /home/syy12632604/projects/TSE/experiments/<
 
 ## 检查与工具
 
-`tools/run_tse_hierarchy_v2.py --mode plan` 只检查层级配置。
+所有配置预览和作业提交统一使用 `run.sh` / `tools/submit_training.py`。
+pilot 使用同一提交器，传入对应配置以及 `--num-jobs 1`。
 `tools/evaluate_tse.py` 提供单目标数据审计和固定 CV 评估；
 `tools/run_tse_dual_wrong.py` 保留双目标的 check、smoke、validate、train 入口。
-小样本拟合、单样本拟合和试听导出工具见 [工具清单](tools/README.md)。
+单目标与双目标各保留一个固定 CV 试听导出工具，见 [工具清单](tools/README.md)。
 `tools/check_local.sh` 检查 Python/shell 语法与 Git 空白错误。
+
+## 数据代码与清理范围
+
+`creators/dataset.py` 只选择三类正式数据集：`tse_dataset.py`（单目标）、
+`tse_dual_dataset.py`（双目标 + Wrong）、`tse_hierarchy_dataset.py`（层级版）。
+`strong_mix.py` 只负责背景筛选和已有划分校验；`paths/` 读取语料索引，
+`fsd50k_cache.py` 处理 FSD 读取与重采样，`mix_utils.py` / `active_rms.py` /
+`tse_dual_mix.py` 负责裁剪、SNR 和混音。两个 `mix_*_audit.py` 是训练所需的
+源音频检查，保留以排除无效音频。标签层级与冲突检查在 `tse_ontology.py` 和
+`tse_hierarchy_labels.py`。
+
+RMS 按零均值波形计算；前景使用活动帧 RMS，背景使用完整 10 秒 RMS。
+`mix_snr_db: null` 时按 `mix_snr_db_range` 在 dB 域均匀采样，指定数值则使用
+固定 SNR。Train 动态采样，CV 保存并严格重放同一配对、seed、裁剪和增益。
+
+2026-10-30 清理了旧 SED 的 log-mel / 帧标签数据集、旧双 FSD 裁剪实现、
+一次性 smallfit / singlefit / 来源和错误条件推理实验，以及重复提交脚本、
+相同内容的历史配置、过期工具说明和网络工具末尾的独立测试示例。仍在使用的 CV 清单、音频读取和 pilot
+指标函数已移入正式模块。删除内容可从 Git 历史查阅。
+
+此次清理改变源码哈希；新实验须使用新的 CV manifest 路径。已有实验继续配套
+原代码和原清单，不覆盖清单、不修改其哈希，也不放宽重放校验。
 
 拆分前文档原文保存在 `docs/history/`，其中旧路径和旧作业号仅作历史记录。
 新运行以本 README 和当前配置为准。来源和验证见 [拆分记录](docs/PROJECT_SPLIT.md)。

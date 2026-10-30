@@ -14,7 +14,7 @@ from pytorch_lightning import Callback
 import soundfile as sf
 import torch
 
-from tools.tse_smallfit_checks import measure
+from utils.tse_dual_metrics import measure
 
 
 def _tensor(value):
@@ -78,7 +78,7 @@ class TSEPilotCallback(Callback):
             self._prepare()
             _json(self.root/'effective_config.json', config)
             files = (
-                'train.py', 'tools/run_tse_hierarchy_v2.py', 'utils/tse_pilot_callback.py',
+                'train.py', 'tools/submit_training.py', 'utils/tse_pilot_callback.py',
                 'utils/tse_config.py', 'utils/tse_hierarchy_config.py', 'utils/training_config.py',
                 'utils/tse_dual_metrics.py', 'utils/backtracking_model_checkpoint.py',
                 'utils/mytensorboardlogger.py', 'utils/collate.py',

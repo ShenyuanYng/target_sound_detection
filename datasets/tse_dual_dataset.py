@@ -15,11 +15,10 @@ import scipy
 import soundfile as sf
 from torch.utils.data import Dataset
 
-from datasets.audioset_fsd50k_mix_dataset import digest
 from datasets.fsd50k_cache import file_sha256, read_cached_fsd
 from datasets.mix_background_audit import audit_backgrounds
 from datasets.mix_fsd_audit import audit_fsd_pool
-from datasets.mix_utils import read_mono_waveform, sample_snr_db, validate_snr_db_range
+from datasets.mix_utils import digest, read_mono_waveform, sample_snr_db, validate_snr_db_range
 from datasets.paths.audioset_paths import load_class_map, resolve_path
 from datasets.paths.fsd50k_paths import read_fsd_dev_index
 from datasets.strong_mix import build_strong_mix_paths, exclude_declared_train_entries, _persist

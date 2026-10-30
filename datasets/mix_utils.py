@@ -18,6 +18,19 @@ SAMPLE_RATE = 16000
 TARGET_NUM_SAMPLES = 160000
 DEFAULT_SNR_DB_RANGE = (-5.0, 5.0)
 
+GEOMETRY_KEYS = (
+    'num_nonzero_samples', 'num_repeats', 'repeated_num_samples',
+    'sampled_crop_start_sample', 'sampled_crop_end_sample',
+    'crop_start_sample', 'crop_end_sample', 'crop_num_samples',
+    'truncated_num_samples', 'pad_left', 'pad_right',
+    'target_start_sample', 'target_end_sample',
+)
+
+
+def digest(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True, allow_nan=False).encode()).hexdigest()
+
+
 #内部校验器：把输入任意波形转为float32的1D数组，要求[非空，有限，单声道]，每个元素是一个采样点在某一时刻的幅度值（不是频谱、不是特征，是原始波形采样）
 def _waveform(waveform):
     value = np.asarray(waveform, dtype=np.float32)
@@ -223,7 +236,7 @@ def scale_foreground_to_snr(foreground, *, snr_db, background_rms,
     RMS 归一化：先把两条声音调整到可比较的基准。
     SNR 缩放：再决定目标声音相对于背景应该有多响。
     reference_mask:FSD那些采样点参与RMS计算
-    reference_rms：指定用于snr缩放的前景RMS数值，不是又做了一次归一化，而是获得 SNR 公式中分母 \(R_f\) 的数值
+    reference_rms：指定用于snr缩放的前景RMS数值，不是又做了一次归一化，而是获得 SNR 公式中分母 R_f 的数值
     """
     value = _waveform(foreground)
     if not np.isfinite(snr_db) or not np.isfinite(background_rms) or background_rms <= 0:

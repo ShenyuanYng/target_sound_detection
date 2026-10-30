@@ -1,7 +1,45 @@
 """Per-condition, per-placement metrics; silent queries never enter SI-SNR."""
+import numpy as np
 import torch
 
 from loss_functions.tse_loss import si_sdr
+
+
+def reference_sisdr(estimate, target):
+    """Float64, separately normalized vectors; cap only the final correlation.
+
+    Exact zero output is undefined mathematically: report a -120 dB penalty AND
+    an explicit flag. Never evaluate a silent reference with this metric.
+    """
+    x, y = np.asarray(estimate, dtype=np.float64), np.asarray(target, dtype=np.float64)
+    x, y = x-x.mean(), y-y.mean()
+    nx, ny = np.linalg.norm(x), np.linalg.norm(y)
+    if ny / np.sqrt(len(y)) <= 1e-5:
+        return None, 'silent_reference'
+    if nx == 0:
+        return -120., 'zero_output'
+    x, y = x/nx, y/ny
+    projection = np.dot(x, y)*y
+    signal = float(np.dot(projection, projection))
+    error = float(np.sum((x-projection)**2))
+    return float(10*np.log10(max(signal, 1e-12)/max(error, 1e-12))), 'valid'
+
+
+def measure(estimate, target, mixture, wrong=False):
+    x, y, mix = [np.asarray(v, dtype=np.float64) for v in (estimate, target, mixture)]
+    power, reference_power = np.mean(x*x), np.mean(y*y)
+    result = dict(output_rms=float(np.sqrt(power)), target_rms=float(np.sqrt(reference_power)),
+        output_to_mixture_energy=float(power/max(np.mean(mix*mix), 1e-30)),
+        peak=float(np.abs(x).max()))
+    if not wrong:
+        score, status = reference_sisdr(x, y)
+        baseline, _ = reference_sisdr(mix, y)
+        old, _ = si_sdr(torch.tensor(x[None], dtype=torch.float32),
+                         torch.tensor(y[None], dtype=torch.float32))
+        result.update(si_sdr_db=score, metric_status=status,
+            mixture_si_sdr_db=baseline, si_sdri_db=score-baseline if score is not None else None,
+            legacy_si_sdr_db=float(old.item()), output_to_target_energy=float(power/max(reference_power, 1e-30)))
+    return result
 
 
 class TSEDualMetrics:

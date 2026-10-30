@@ -25,6 +25,20 @@ def file_sha256(path):
             digest.update(block)
     return digest.hexdigest()
 
+
+def read_fsd(path):
+    """Decode FSD as mono 16 kHz float32 without populating the training cache."""
+    wave, rate = sf.read(str(path), dtype='float32', always_2d=True)
+    wave = wave.mean(axis=1, dtype=np.float32)
+    if rate == 44100:
+        wave = resample_poly(wave, 160, 441, window=('kaiser', 5.0), padtype='constant')
+    elif rate != 16000:
+        raise ValueError(f'Unsupported FSD sample rate: {rate}')
+    if not len(wave) or not np.isfinite(wave).all():
+        raise ValueError('Invalid FSD waveform')
+    return wave
+
+
 #输入FSD音频路径，缓存目录计算源哈希→校验采样率（仅 44100/16000）→构造 identity→
 # 按 key 加文件锁读缓存；未命中则重采样并原子发布（wav+json manifest，manifest 最后发布）；校验缓存完整性
 #输出(16k单声道波形, identity/cache_hit等字典)

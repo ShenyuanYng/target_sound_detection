@@ -10,18 +10,6 @@ def video_id(entry):
     return entry.get("ytid") or entry["id"].rsplit("_", 1)[0]
 
 
-def validate_split_config(hparams):
-    """Never silently apply a new holdout to an already-trained old model."""
-    required = ("train_val_fraction", "train_split_seed", "train_split_path",
-                "test_audio_dir", "test_weak_manifest", "test_strong_manifest")
-    if any(not hasattr(hparams, name) for name in required):
-        raise ValueError(
-            "Legacy eval-split configuration/checkpoint is incompatible with the "
-            "Strong Train 85/15 split. Start a new experiment from scratch with "
-            "the current configuration; do not resume the old checkpoint."
-        )
-
-
 def split_train(entries, data_root, split_path, fraction=0.15, seed=7):
     """Hold out round(fraction * videos) videos; never split their clips.
 
