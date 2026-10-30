@@ -4,7 +4,7 @@
 
 | 工具 | 用途 |
 |---|---|
-| `submit_training.py` | 三类 TSE 的节点配置、预览、提交及新 run 续训链 |
+| `submit_training.py` | 接收 run.sh 的参数，冻结节点配置、预览/提交/分配内执行及新 run 续训链 |
 | `run_tse_dual_wrong.py` | 双 FSD 数据检查、有界训练、固定 CV 评估 |
 | `evaluate_tse.py` | 单目标数据审计与固定 CV 评估 |
 | `export_tse_audio_compare.py` | 从显式 run 导出单目标 CV 试听；自动读取实际最佳 epoch |
@@ -18,12 +18,15 @@
 层级版和 pilot 也使用统一提交器，例如：
 
 ```bash
-python tools/submit_training.py --node ailab01 \
+bash run.sh --node ailab01 \
   --exp-def exp_defs/tse_hierarchy_v2_pilot_10pct_bf16.yaml --num-jobs 1
 ```
 
-默认仅预览；添加 `--submit` 才提交。直接执行训练与恢复分别使用项目根目录的
-`train.py` 和 `resume_training.py`。旧的一次性拟合、特殊条件推理和重复提交入口
+默认仅预览；添加 `--stage 1` 或 `--submit` 才提交。常用参数在 `run.sh` 顶部，
+命令行可以覆盖；例如 `--batch-size 4 --epochs 50 --tag baseline`。在已分配的
+节点执行用 `--stage 1 --use-slurm 0`，恢复已有 run 使用根目录的 `resume_training.py`。
+源码或混音更新后可传入新的 `--manifest-tag`，保持既有清单不变。
+旧的一次性拟合、特殊条件推理和重复提交入口
 已删除；正式导出所需的只读 FSD 解码在 `datasets/fsd50k_cache.py`，pilot 的指标
 函数在 `utils/tse_dual_metrics.py`，训练不再依赖已删除的测试脚本。
 

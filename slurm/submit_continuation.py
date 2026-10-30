@@ -73,7 +73,7 @@ def submit_chain(run_dir, after_job, num_jobs, node, python_bin, starting_job=Fa
             if account:
                 command.append(f"--account={account}")
             command.extend([str(project / "slurm/continue_training.sbatch"), str(run_dir),
-                            str(Path(python_bin).resolve()), str(chain_dir)])
+                            str(Path(python_bin).absolute()), str(chain_dir)])
             try:
                 output = subprocess.check_output(command, text=True).strip()
                 job_id = output.split(";")[0]

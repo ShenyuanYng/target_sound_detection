@@ -1,14 +1,17 @@
 """Submit a standalone TSE experiment with bounded checkpoint continuations.
 
-Default is a read-only preview. --submit freezes the node configuration and
-queues the first job; that job queues num_jobs-1 serial continuations through
-the existing submit_continuation / resume_training implementation.
+Default is a read-only preview. --submit queues the first job; --execute runs
+inside an existing allocation. Both freeze the same configuration and use the
+existing submit_continuation / resume_training implementation.
 """
 import argparse
 import datetime
 import json
+import math
 import os
 from pathlib import Path
+import re
+import shutil
 import socket
 import subprocess
 import sys
@@ -34,9 +37,35 @@ PROFILES = {
                 '/data/syy12632604/AudioSetMix/audio/balance_wav'),
 }
 
+TRAINING_OVERRIDES = {
+    'batch_size': int, 'learning_rate': float, 'epochs': int, 'patience': int,
+    'num_workers': int, 'seed': int, 'train_percent_check': float,
+    'val_percent_check': float, 'precision': str, 'accumulate_grad_batches': int,
+}
 
-def prepare_config(config, node):
+
+def validate_tag(value):
+    if value and not re.fullmatch(r'[\w-]{1,40}', value):
+        raise ValueError('Tags must contain 1-40 letters, digits, underscores or hyphens')
+    return value
+
+
+def run_name_prefix(config, tag=''):
+    """Readable experiment identity; the Slurm job ID makes each run distinct."""
+    validate_tag(tag)
+    name = (f'run_b{config["batch_size"]}_lr{config["learning_rate"]:g}'
+            f'_e{config["epochs"]}_{config.get("precision", "32-true")}')
+    return name + (f'_{tag}' if tag else '')
+
+
+def submission_run(config, spec, job):
+    # Existing frozen submissions predate readable names and still use run_job<ID>.
+    return Path(config['save_path']) / f'{spec.get("run_name_prefix", "run")}_job{job}'
+
+
+def prepare_config(config, node, manifest_tag=''):
     config = dict(config)
+    validate_tag(manifest_tag)
     if config.get('dataset') not in VARIANTS or config.get('test_after_fit') is not False:
         raise ValueError('Expected TSE Train/CV configuration')
     for name in ('train_percent_check', 'val_percent_check'):
@@ -45,9 +74,24 @@ def prepare_config(config, node):
     for name in ('batch_size', 'epochs'):
         if type(config.get(name)) is not int or config[name] < 1:
             raise ValueError(f'{name} must be a positive integer')
+    for name in ('patience', 'num_workers'):
+        if type(config.get(name)) is not int or config[name] < 0:
+            raise ValueError(f'{name} must be a nonnegative integer')
+    rate = config.get('learning_rate')
+    if type(rate) not in (int, float) or not math.isfinite(rate) or rate <= 0:
+        raise ValueError('learning_rate must be finite and positive')
+    if type(config.get('seed')) is not int or not 0 <= config['seed'] < 2**32:
+        raise ValueError('seed must be an integer in [0, 2**32)')
+    if (type(config.get('accumulate_grad_batches', 1)) is not int
+            or config.get('accumulate_grad_batches', 1) < 1):
+        raise ValueError('accumulate_grad_batches must be a positive integer')
+    if config.get('precision', '32-true') not in ('32-true', '16-mixed', 'bf16-mixed'):
+        raise ValueError('precision must be 32-true, 16-mixed or bf16-mixed')
     root, audio = PROFILES[node]
     variant = VARIANTS[config['dataset']]
     derived = EXPERIMENTS/'manifests'/variant/node
+    if manifest_tag:
+        derived = derived/manifest_tag
     if variant == 'tse_phase1':
         audio_cache = Path(root)/'tse_phase1_v1/fsd_cache_16k'
     elif variant == 'tse_hierarchy_v2':
@@ -74,21 +118,41 @@ def prepare_config(config, node):
 
 
 def submit(args):
-    config = prepare_config(yaml.safe_load(Path(args.exp_def).read_text()), args.node)
+    config = yaml.safe_load(Path(args.exp_def).read_text())
+    if not isinstance(config, dict):
+        raise ValueError('Experiment YAML must contain a configuration mapping')
+    overrides = {name: getattr(args, name) for name in TRAINING_OVERRIDES if hasattr(args, name)}
+    config.update(overrides)
+    config = prepare_config(config, args.node, getattr(args, 'manifest_tag', ''))
     if args.num_jobs < 1 or args.cpus < 1:
         raise ValueError('Job/CPU counts must be positive')
     if config.get('tse_pilot_artifacts') and args.num_jobs != 1:
         raise ValueError('Pilot export runs use one allocation; choose --num-jobs 1')
-    python = Path(args.python_bin).resolve(strict=True)
+    # Keep the environment's executable path: resolving a venv symlink can
+    # accidentally launch its base interpreter without the installed packages.
+    executable = shutil.which(args.python_bin)
+    if executable is None:
+        raise FileNotFoundError(f'Python executable not found: {args.python_bin}')
+    python = Path(executable).absolute()
     partition, gres = RESOURCES[args.node]
     spec = dict(node=args.node, num_jobs=args.num_jobs, python_bin=str(python),
         partition=partition, gres=gres, cpus_per_task=args.cpus, mem=args.mem,
-        time_limit=args.time, account=args.account)
-    if not args.submit:
-        print(json.dumps(dict(action='preview', resources=spec, config=config), indent=2))
+        time_limit=args.time, account=args.account,
+        run_name_prefix=run_name_prefix(config, getattr(args, 'tag', '')))
+    execute = getattr(args, 'execute', False)
+    if args.submit and execute:
+        raise ValueError('Choose either Slurm submission or execution in an allocation')
+    if not args.submit and not execute:
+        print(json.dumps(dict(action='preview', resources=spec, config=config,
+            training_overrides=overrides,
+            run_directory=str(submission_run(config, spec, '<JOB_ID>'))), indent=2))
         return
-    if os.environ.get('SLURM_JOB_ID'):
+    if args.submit and os.environ.get('SLURM_JOB_ID'):
         raise ValueError('Submit outside an allocated Slurm job')
+    if execute:
+        node = os.environ.get('SLURMD_NODENAME', socket.gethostname().split('.')[0])
+        if not os.environ.get('SLURM_JOB_ID', '').isdigit() or node != args.node:
+            raise ValueError('Execute only inside the requested Slurm node allocation')
     if PROJECT != EXPERIMENTS.parent:
         raise ValueError(f'Submit from the shared server checkout: {EXPERIMENTS.parent}')
     staging = EXPERIMENTS/'.submissions'
@@ -96,10 +160,16 @@ def submit(args):
     frozen = Path(tempfile.mkdtemp(prefix=args.node+'_', dir=staging))
     (frozen/'effective_config.yaml').write_text(yaml.safe_dump(config, sort_keys=False))
     spec.update(submitted_at=datetime.datetime.now().astimezone().isoformat(),
-                source_config=str(Path(args.exp_def).resolve()))
+                source_config=str(Path(args.exp_def).resolve()),
+                training_overrides=overrides,
+                launch_mode='allocated' if execute else 'submit')
     (frozen/'submission.json').write_text(json.dumps(spec, indent=2)+'\n')
     logs = frozen/'scheduler_logs'
     logs.mkdir(exist_ok=True)
+    if execute:
+        (frozen/'initial_job_id').write_text(os.environ['SLURM_JOB_ID']+'\n')
+        run_submission(frozen)
+        return
     command = ['sbatch', '--parsable', '--export=ALL', '--ntasks=1',
         f'--chdir={PROJECT}', f'--job-name={VARIANTS[config["dataset"]]}-{args.node}',
         f'--nodelist={args.node}', f'--partition={partition}', f'--gres={gres}',
@@ -114,7 +184,7 @@ def submit(args):
     # The worker may already be reading submission.json: keep that file immutable.
     (frozen/'initial_job_id').write_text(result+'\n')
     print(json.dumps(dict(initial_job_id=result, total_jobs=args.num_jobs,
-        run_dir=str(Path(config['save_path'])/f'run_job{result}'),
+        run_dir=str(submission_run(config, spec, result)),
         frozen_config=str(frozen/'effective_config.yaml')), indent=2))
 
 
@@ -128,7 +198,7 @@ def run_submission(directory):
     # Preserve the scheduler's GPU visibility; never hard-code a physical GPU.
     os.chdir(PROJECT)
     config = yaml.safe_load((frozen/'effective_config.yaml').read_text())
-    run = Path(config['save_path'])/f'run_job{job}'
+    run = submission_run(config, spec, job)
     pilot = bool(config.get('tse_pilot_artifacts', False))
     run.parent.mkdir(parents=True, exist_ok=True)
     run.mkdir()  # Exclusive: never overwrite another run.
@@ -175,7 +245,7 @@ def run_submission(directory):
 
 
 def main(default_config='tse_strong_dual_fsd_hierarchy_v2.yaml'):
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument('--node', choices=PROFILES)
     parser.add_argument('--exp-def', default=str(PROJECT/'exp_defs'/default_config))
     parser.add_argument('--num-jobs', type=int, default=1, help='Total jobs including the first')
@@ -184,7 +254,14 @@ def main(default_config='tse_strong_dual_fsd_hierarchy_v2.yaml'):
     parser.add_argument('--mem', default='32G')
     parser.add_argument('--time', default='2-00:00:00')
     parser.add_argument('--account')
-    parser.add_argument('--submit', action='store_true', help='Queue first job; default is preview only')
+    parser.add_argument('--tag', default='', help='Short label appended to the readable run name')
+    parser.add_argument('--manifest-tag', default='', help='New namespace for derived manifests; no repartitioning')
+    for name, kind in TRAINING_OVERRIDES.items():
+        parser.add_argument('--'+name.replace('_', '-'), type=kind, default=argparse.SUPPRESS,
+                            help='Override the selected YAML value; omitted values are inherited')
+    action = parser.add_mutually_exclusive_group()
+    action.add_argument('--submit', action='store_true', help='Queue first job; default is preview only')
+    action.add_argument('--execute', action='store_true', help='Train inside the requested existing Slurm allocation')
     parser.add_argument('--run-submission', help=argparse.SUPPRESS)
     args = parser.parse_args()
     if args.run_submission:

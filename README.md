@@ -32,26 +32,47 @@ TensorBoard、指标、checkpoint 和调度日志。历史 TSE 实验留在原�
 
 ## 提交新训练
 
-从服务器共享项目提交，默认仅打印计划，不创建模型或提交作业：
+常用入口是 `run.sh`，结构参考 `example_code`：顶部集中配置实验和资源，
+`spksep_run.sh` 负责阶段和运行方式，`tools/submit_training.py` 负责校验参数、
+冻结配置、命名输出和提交作业。网络、loss、混音与条件采样实现不由启动脚本改写。
+
+在 `run.sh` 顶部修改 `node`、`exp_def`、`num_jobs`、`cpus`、`mem`、`time_limit`
+以及实验 `tag`。`batch_size`、`learning_rate`、`epochs` 等训练参数留空时继承
+所选 YAML，需要覆盖时再赋值。这样切换 pilot YAML 会保留其 5 epoch、10% 和
+BF16 设置。命令行参数优先于脚本顶部的设置，支持连字符或下划线两种写法。
+
+从服务器共享项目执行，默认 `stage=0` 仅打印计划，不创建模型、目录或作业：
 
 ```bash
 cd /home/syy12632604/projects/TSE
-/home/syy12632604/anaconda3/envs/audioset/bin/python tools/submit_training.py \
-  --node ailab01 --exp-def exp_defs/tse_strong_dual_fsd_hierarchy_v2.yaml
+bash run.sh
+bash run.sh --node ailab02 --batch-size 4 --learning-rate 0.0001 --tag baseline
+# 确认预览后提交；也可直接在 run.sh 顶部设置 stage=1。
+bash run.sh --stage 1 --node ailab02 --batch-size 4 --learning-rate 0.0001 --tag baseline
 ```
 
-检查计划中的配置和路径后，添加 `--submit` 提交。`--node ailab02` 使用 ailab02
-的数据路径；`--num-jobs 3` 可安排最多三个串行作业，后续作业恢复同一新 run。
+`--submit` 等价于 `--stage 1 --use-slurm 1`。`--node ailab02` 使用 ailab02
+的数据路径；`--num-jobs 3` 安排总共三个串行作业，后续作业恢复同一新 run。
 pilot 导出配置使用 `--num-jobs 1`。资源可通过 `--cpus`、`--mem`、`--time` 指定。
-`run.sh` 是上述提交器的简短入口，使用 `PYTHON_BIN` 选择 Python。
+服务器默认选择 `/home/syy12632604/anaconda3/envs/audioset/bin/python`；
+可通过 `PYTHON_BIN` 或 `--python-bin` 指定环境。本地预览需选择已安装项目依赖的 Python。
+
+`--manifest-tag cleanup_v1` 将派生清单放到
+`experiments/manifests/<variant>/<node>/cleanup_v1/`，用于源码或混音设置更新后的新实验。
+它不改变原始 Train/CV 成员或音频缓存；同一命名空间仍严格校验清单，不能覆盖旧内容。
 
 初始调度日志和提交时的配置位于 `experiments/.submissions/<submission>/`；
-训练目录为 `experiments/<variant>/<node>/run_job<ID>/`，续训调度日志位于该 run 的
-`continuation/scheduler_logs/`。保存的提交记录可以关联两者。
+训练目录为 `experiments/<variant>/<node>/run_b<batch>_lr<lr>_e<epochs>_<precision>[_<tag>]_job<ID>/`。
+例如 `run_b2_lr0.0001_e50_32-true_baseline_job12345`。续训调度日志位于该 run 的
+`continuation/scheduler_logs/`。有效配置和源码哈希完整保存；旧 `run_job<ID>` 目录仍可恢复。
 
-直接训练入口为 `train.py --exp-def <config> --save-name <unique-name>`，
-需在分配的计算节点执行。配置默认数据路径对应 ailab01；跨节点优先用提交器。
-`spksep_run.sh` 是已获分配节点上的执行包装，不再包含 SED 分支。
+已经获 Slurm 分配时，使用 `bash run.sh --stage 1 --use-slurm 0 --node ailab01`，
+仍由同一流程冻结配置、创建独立 run 并保存日志。脚本验证实际分配节点与 `--node`
+一致，沿用 Slurm 的 GPU 可见性。默认预览也可在该模式下执行。
+
+`python tools/submit_training.py --node ailab01 --exp-def <config>` 的预览/提交接口
+继续可用。底层 `train.py --exp-def <config> --save-name <unique-name>` 保留，需在
+分配的计算节点执行并自行提供正确数据路径；常规训练推荐使用 `run.sh`。
 
 ## 恢复拆分后的新训练
 
