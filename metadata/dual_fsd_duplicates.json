@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-13",
+  "node": "ailab02",
+  "method": "Read-only SHA256 scan of 21717 indexed balanced AudioSet WAV files; partitions from existing audioset_background_seed7.json",
+  "scope": "Additional duplicates beyond the existing Strong-intersection exclusions; exclude all listed Train IDs only in the dual-FSD experiment",
+  "groups": [
+    {
+      "sha256": "9a77611a46061f6fd362ec26649cf1b4863a86cd425f7fba9209bfa7d1c9bc0b",
+      "tr": ["2VqKshkkHLU_90000", "3tLz1WGqNE0_90000", "6sy6SC3XuMU_90000", "70Y4dls8VVg_90000", "BQ1V_ImlYYE_90000", "ORbg5kc4Xyg_90000", "SXJg7njeocc_90000", "bgPABUZA8Mk_90000", "fQ4a_uttGCE_90000", "z9yGS9HKGsQ_90000"],
+      "cv": ["iRbyI39B-kQ_90000", "kGA7MEPfO-4_90000"]
+    },
+    {
+      "sha256": "ac6ef9a97f8869dd0417300f7f93aab7a9c7abf17da4751a9a55a14cea467bf8",
+      "tr": ["MWz9Ge6ol54_90000"],
+      "cv": ["tNABGedFgzQ_90000"]
+    },
+    {
+      "sha256": "cf1db06c837f2e6147998cbc1652c705f96708f7bd7e430c0405416dc0e2719a",
+      "tr": ["Gq0nlGs2IaE_410000"],
+      "cv": ["vN4AZnqdvt4_410000"]
+    },
+    {
+      "sha256": "ef637609beb59b1c82e0e0daa08a62484c2b9b9744bf145614fb29168e486737",
+      "tr": ["gDr5NutZjvs_30000"],
+      "cv": ["ZSljO3DqDDU_30000"]
+    }
+  ]
+}

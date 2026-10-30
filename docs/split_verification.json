@@ -1,0 +1,39 @@
+{
+  "sed": {
+    "configurations": 5,
+    "forward_loss_gradient_and_state": "bitwise_equal",
+    "cpu_synthetic_inputs": true
+  },
+  "tse": {
+    "configurations": 6,
+    "forward_loss_gradient_and_state": "bitwise_equal",
+    "cpu_synthetic_inputs": true
+  },
+  "sed_existing_tests": {
+    "passed": 6
+  },
+  "new_tse_checkpoint_resume": {
+    "modes": [
+      "combined",
+      "sequential"
+    ],
+    "saved_global_step": 1,
+    "resumed_global_step": 2,
+    "optimizer_state_restored": true,
+    "scheduler_saved_state_restored": true,
+    "frozen_configuration_unchanged": true
+  },
+  "node_profiles": {
+    "configurations": 7,
+    "nodes": [
+      "ailab01",
+      "ailab02"
+    ]
+  },
+  "inference_self_tests": 3,
+  "scope": "CPU synthetic inputs; reduced TSE width/layers for bounded checks. No full corpus or GPU training executed.",
+  "launcher_lifecycles": {
+    "passed": 4,
+    "scheduler_and_training_mocked": true
+  }
+}

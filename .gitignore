@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# macOS
+.DS_Store
+._*
+__MACOSX/
+
+# Windows
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+
+# Model checkpoints
+*.ckpt
+*.pth
+*.pt
+
+# Datasets
+data/
+dataset/
+#datasets/
+
+# Outputs
+experiments/
+outputs/
+results/
+checkpoints/
+debug/
+.architecture-build/
+
+# Mac-to-server sync settings (machine-specific)
+.sync_server.env
+
+# Split backups and local generated artifacts
+.project-split-backups/
+output/
+.presentation-build/

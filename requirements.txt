@@ -1,0 +1,12 @@
+pytorch-lightning==2.5.2
+lightning-utilities==0.15.0
+torchmetrics==0.7.0
+torch==2.8.0
+torchaudio==2.8.0
+numpy==1.24.1
+scipy==1.9.3
+soundfile==0.12.1
+loguru==0.4.1
+PyYAML==5.4
+setuptools==69.5.1
+tensorboard==2.14.0

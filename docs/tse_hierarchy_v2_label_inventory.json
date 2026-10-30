@@ -1,0 +1,1532 @@
+{
+  "status": "passed",
+  "verification": "metadata only; existing audits reused; no audio read or model run",
+  "train": {
+    "input_count": 36079,
+    "positive_count": 32726,
+    "positive_class_count": 188,
+    "positive_mid_counts": {
+      "/m/01280g": 24,
+      "/m/012f08": 81,
+      "/m/0130jx": 93,
+      "/m/013y1f": 266,
+      "/m/014zdl": 205,
+      "/m/015lz1": 244,
+      "/m/015p6": 485,
+      "/m/018vs": 259,
+      "/m/0195fx": 229,
+      "/m/0199g": 111,
+      "/m/019jd": 65,
+      "/m/01b82r": 85,
+      "/m/01b_21": 208,
+      "/m/01bjv": 164,
+      "/m/01d380": 117,
+      "/m/01h8n0": 35,
+      "/m/01hgjl": 199,
+      "/m/01hnzm": 71,
+      "/m/01hsr_": 46,
+      "/m/01j3sz": 708,
+      "/m/01jt3m": 137,
+      "/m/01kcd": 360,
+      "/m/01lsmm": 89,
+      "/m/01m2v": 109,
+      "/m/01m4t": 81,
+      "/m/01p970": 44,
+      "/m/01qbl": 5,
+      "/m/01s0vc": 244,
+      "/m/01x3z": 144,
+      "/m/01yrx": 56,
+      "/m/020bb7": 265,
+      "/m/0239kh": 148,
+      "/m/023pjk": 190,
+      "/m/0242l": 333,
+      "/m/025_jnm": 110,
+      "/m/025rv6n": 61,
+      "/m/026fgl": 50,
+      "/m/026t6": 121,
+      "/m/028ght": 195,
+      "/m/02_41": 309,
+      "/m/02_nn": 464,
+      "/m/02bm9n": 25,
+      "/m/02dgv": 61,
+      "/m/02hnl": 203,
+      "/m/02jz0l": 71,
+      "/m/02mk9": 251,
+      "/m/02rtxlg": 135,
+      "/m/02sgy": 399,
+      "/m/02x984l": 52,
+      "/m/02y_763": 125,
+      "/m/02yds9": 44,
+      "/m/02zsn": 313,
+      "/m/0316dw": 97,
+      "/m/032s66": 282,
+      "/m/0342h": 375,
+      "/m/034srq": 126,
+      "/m/0395lw": 215,
+      "/m/039jq": 187,
+      "/m/03cczk": 146,
+      "/m/03dnzn": 56,
+      "/m/03kmc9": 21,
+      "/m/03l9g": 109,
+      "/m/03m5k": 149,
+      "/m/03m9d0z": 206,
+      "/m/03q5_w": 181,
+      "/m/03qc9zr": 173,
+      "/m/03qjg": 138,
+      "/m/03qtq": 376,
+      "/m/03qtwd": 91,
+      "/m/03v3yw": 131,
+      "/m/03vt0": 112,
+      "/m/03w41f": 49,
+      "/m/03wwcy": 73,
+      "/m/042v_gx": 355,
+      "/m/0463cq4": 79,
+      "/m/04_sv": 95,
+      "/m/04brg2": 191,
+      "/m/04k94": 199,
+      "/m/04s8yn": 50,
+      "/m/04szw": 220,
+      "/m/05148p4": 269,
+      "/m/053hz1": 55,
+      "/m/05kq4": 54,
+      "/m/05r5c": 677,
+      "/m/05r5wn": 196,
+      "/m/05tny_": 340,
+      "/m/05zppz": 302,
+      "/m/0642b4": 48,
+      "/m/06_fw": 72,
+      "/m/06h7j": 192,
+      "/m/06mb1": 196,
+      "/m/06rvn": 631,
+      "/m/07brj": 188,
+      "/m/07cx4": 415,
+      "/m/07gql": 504,
+      "/m/07jdr": 245,
+      "/m/07k1x": 310,
+      "/m/07p6fty": 31,
+      "/m/07p7b8y": 33,
+      "/m/07pb8fc": 21,
+      "/m/07pbtc8": 275,
+      "/m/07pggtn": 146,
+      "/m/07pjwq1": 56,
+      "/m/07plct2": 102,
+      "/m/07plz5l": 38,
+      "/m/07pp_mv": 314,
+      "/m/07pqc89": 15,
+      "/m/07pzfmf": 170,
+      "/m/07q2z82": 45,
+      "/m/07q6cd_": 253,
+      "/m/07q7njn": 166,
+      "/m/07qcpgn": 138,
+      "/m/07qcx4z": 214,
+      "/m/07qjznl": 75,
+      "/m/07qjznt": 37,
+      "/m/07qn4z3": 93,
+      "/m/07qnq_y": 239,
+      "/m/07qqyl4": 122,
+      "/m/07qrkrw": 130,
+      "/m/07qs1cx": 86,
+      "/m/07r04": 64,
+      "/m/07r10fb": 31,
+      "/m/07r4wb8": 150,
+      "/m/07r5v4s": 80,
+      "/m/07r660_": 83,
+      "/m/07rgt08": 38,
+      "/m/07rjwbb": 107,
+      "/m/07rjzl8": 201,
+      "/m/07rkbfh": 10,
+      "/m/07rn7sz": 300,
+      "/m/07rqsjt": 225,
+      "/m/07rrlb6": 186,
+      "/m/07s0dtb": 38,
+      "/m/07s0s5r": 48,
+      "/m/07sr1lc": 69,
+      "/m/07swgks": 58,
+      "/m/07yv9": 52,
+      "/m/081rb": 211,
+      "/m/0838f": 61,
+      "/m/083vt": 83,
+      "/m/085jw": 2458,
+      "/m/0912c9": 63,
+      "/m/09b5t": 111,
+      "/m/09ld4": 46,
+      "/m/09x0r": 407,
+      "/m/09xqv": 115,
+      "/m/0_ksk": 2,
+      "/m/0bm02": 155,
+      "/m/0brhx": 52,
+      "/m/0bt9lr": 283,
+      "/m/0btp2": 45,
+      "/m/0c2wf": 44,
+      "/m/0ch8v": 238,
+      "/m/0cmf2": 84,
+      "/m/0dv3j": 51,
+      "/m/0dv5r": 254,
+      "/m/0dwsp": 141,
+      "/m/0dwtp": 47,
+      "/m/0dxrf": 56,
+      "/m/0f8s22": 93,
+      "/m/0fqfqc": 105,
+      "/m/0fx80y": 84,
+      "/m/0fx9l": 103,
+      "/m/0g6b5": 303,
+      "/m/0ghcn6": 55,
+      "/m/0gy1t2s": 59,
+      "/m/0j45pbj": 53,
+      "/m/0j6m2": 138,
+      "/m/0jb2l": 7,
+      "/m/0jbk": 87,
+      "/m/0k4j": 170,
+      "/m/0k5j": 71,
+      "/m/0k65p": 53,
+      "/m/0l14_3": 1841,
+      "/m/0l14md": 34,
+      "/m/0l15bq": 290,
+      "/m/0ltv": 25,
+      "/m/0lyf6": 318,
+      "/m/0mbct": 175,
+      "/m/0mkg": 46,
+      "/m/0ngt1": 251,
+      "/m/0ytgt": 124,
+      "/t/dd00003": 56,
+      "/t/dd00004": 103,
+      "/t/dd00077": 205,
+      "/t/dd00112": 165,
+      "/t/dd00130": 45,
+      "/t/dd00134": 56
+    },
+    "rejected_counts": {
+      "audited_exclusion": 3,
+      "multiple_specific_labels": 3137,
+      "unmapped_or_silence": 213
+    },
+    "label_policy": "annotated-most-specific-singleton-v2"
+  },
+  "validation": {
+    "input_count": 4158,
+    "positive_count": 3308,
+    "positive_class_count": 163,
+    "positive_mid_counts": {
+      "/m/012f08": 4,
+      "/m/0130jx": 13,
+      "/m/013y1f": 41,
+      "/m/014zdl": 2,
+      "/m/015lz1": 5,
+      "/m/015p6": 1,
+      "/m/018vs": 51,
+      "/m/0195fx": 28,
+      "/m/019jd": 16,
+      "/m/01b82r": 17,
+      "/m/01b_21": 38,
+      "/m/01bjv": 17,
+      "/m/01d380": 25,
+      "/m/01hgjl": 28,
+      "/m/01hnzm": 5,
+      "/m/01hsr_": 10,
+      "/m/01j3sz": 8,
+      "/m/01jt3m": 22,
+      "/m/01kcd": 1,
+      "/m/01lsmm": 16,
+      "/m/01m2v": 20,
+      "/m/01m4t": 15,
+      "/m/01p970": 8,
+      "/m/01s0vc": 41,
+      "/m/01x3z": 1,
+      "/m/01yrx": 1,
+      "/m/0239kh": 22,
+      "/m/023pjk": 36,
+      "/m/0242l": 62,
+      "/m/025_jnm": 21,
+      "/m/026fgl": 11,
+      "/m/026t6": 1,
+      "/m/028ght": 35,
+      "/m/02_41": 9,
+      "/m/02_nn": 64,
+      "/m/02bm9n": 6,
+      "/m/02hnl": 34,
+      "/m/02jz0l": 13,
+      "/m/02mk9": 2,
+      "/m/02rtxlg": 24,
+      "/m/02sgy": 56,
+      "/m/02x984l": 8,
+      "/m/02y_763": 18,
+      "/m/02yds9": 11,
+      "/m/02zsn": 15,
+      "/m/0316dw": 2,
+      "/m/032s66": 54,
+      "/m/0342h": 21,
+      "/m/034srq": 20,
+      "/m/0395lw": 5,
+      "/m/039jq": 3,
+      "/m/03cczk": 25,
+      "/m/03dnzn": 13,
+      "/m/03kmc9": 4,
+      "/m/03l9g": 23,
+      "/m/03m5k": 27,
+      "/m/03m9d0z": 27,
+      "/m/03q5_w": 31,
+      "/m/03qc9zr": 33,
+      "/m/03qjg": 25,
+      "/m/03qtq": 63,
+      "/m/03qtwd": 26,
+      "/m/03v3yw": 24,
+      "/m/03vt0": 2,
+      "/m/03w41f": 10,
+      "/m/03wwcy": 11,
+      "/m/042v_gx": 62,
+      "/m/0463cq4": 15,
+      "/m/04_sv": 18,
+      "/m/04brg2": 17,
+      "/m/04k94": 1,
+      "/m/04s8yn": 11,
+      "/m/04szw": 8,
+      "/m/05148p4": 12,
+      "/m/053hz1": 15,
+      "/m/05r5c": 89,
+      "/m/05r5wn": 33,
+      "/m/05tny_": 54,
+      "/m/05zppz": 33,
+      "/m/0642b4": 13,
+      "/m/06_fw": 11,
+      "/m/06h7j": 26,
+      "/m/06rvn": 78,
+      "/m/07brj": 33,
+      "/m/07gql": 75,
+      "/m/07jdr": 42,
+      "/m/07p6fty": 2,
+      "/m/07p7b8y": 2,
+      "/m/07pb8fc": 9,
+      "/m/07pbtc8": 28,
+      "/m/07pggtn": 6,
+      "/m/07pjwq1": 3,
+      "/m/07plct2": 21,
+      "/m/07plz5l": 6,
+      "/m/07pqc89": 21,
+      "/m/07pzfmf": 21,
+      "/m/07q2z82": 6,
+      "/m/07q6cd_": 20,
+      "/m/07q7njn": 7,
+      "/m/07qcpgn": 20,
+      "/m/07qcx4z": 37,
+      "/m/07qjznl": 10,
+      "/m/07qn4z3": 14,
+      "/m/07qnq_y": 37,
+      "/m/07qqyl4": 23,
+      "/m/07qrkrw": 22,
+      "/m/07qs1cx": 16,
+      "/m/07r04": 12,
+      "/m/07r10fb": 2,
+      "/m/07r4wb8": 31,
+      "/m/07r5v4s": 4,
+      "/m/07r660_": 13,
+      "/m/07rgt08": 4,
+      "/m/07rjwbb": 6,
+      "/m/07rjzl8": 19,
+      "/m/07rkbfh": 3,
+      "/m/07rn7sz": 47,
+      "/m/07rqsjt": 35,
+      "/m/07rrlb6": 29,
+      "/m/07s0dtb": 8,
+      "/m/07s0s5r": 12,
+      "/m/07sr1lc": 8,
+      "/m/081rb": 36,
+      "/m/085jw": 85,
+      "/m/0912c9": 12,
+      "/m/09b5t": 20,
+      "/m/09ld4": 11,
+      "/m/09x0r": 9,
+      "/m/09xqv": 21,
+      "/m/0bm02": 5,
+      "/m/0brhx": 3,
+      "/m/0bt9lr": 2,
+      "/m/0btp2": 1,
+      "/m/0c2wf": 3,
+      "/m/0ch8v": 41,
+      "/m/0cmf2": 12,
+      "/m/0dv3j": 10,
+      "/m/0dv5r": 46,
+      "/m/0dwsp": 16,
+      "/m/0dwtp": 6,
+      "/m/0dxrf": 5,
+      "/m/0f8s22": 2,
+      "/m/0fqfqc": 19,
+      "/m/0fx80y": 1,
+      "/m/0fx9l": 21,
+      "/m/0g6b5": 57,
+      "/m/0ghcn6": 8,
+      "/m/0gy1t2s": 14,
+      "/m/0j45pbj": 6,
+      "/m/0j6m2": 17,
+      "/m/0k4j": 12,
+      "/m/0l14_3": 80,
+      "/m/0l15bq": 39,
+      "/m/0ltv": 1,
+      "/m/0mbct": 30,
+      "/m/0mkg": 6,
+      "/m/0ngt1": 27,
+      "/m/0ytgt": 11,
+      "/t/dd00003": 6,
+      "/t/dd00004": 22,
+      "/t/dd00077": 6,
+      "/t/dd00112": 26,
+      "/t/dd00130": 12
+    },
+    "rejected_counts": {
+      "multiple_specific_labels": 812,
+      "unmapped_or_silence": 38
+    },
+    "label_policy": "annotated-most-specific-singleton-v2"
+  },
+  "train_only_positive_classes": 25,
+  "classes": [
+    {
+      "mid": "/m/01280g",
+      "name": "Wild animals",
+      "train_files": 24,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/012f08",
+      "name": "Motor vehicle (road)",
+      "train_files": 81,
+      "val_files": 4
+    },
+    {
+      "mid": "/m/0130jx",
+      "name": "Sink (filling or washing)",
+      "train_files": 93,
+      "val_files": 13
+    },
+    {
+      "mid": "/m/013y1f",
+      "name": "Organ",
+      "train_files": 266,
+      "val_files": 41
+    },
+    {
+      "mid": "/m/014zdl",
+      "name": "Explosion",
+      "train_files": 205,
+      "val_files": 2
+    },
+    {
+      "mid": "/m/015lz1",
+      "name": "Singing",
+      "train_files": 244,
+      "val_files": 5
+    },
+    {
+      "mid": "/m/015p6",
+      "name": "Bird",
+      "train_files": 485,
+      "val_files": 1
+    },
+    {
+      "mid": "/m/018vs",
+      "name": "Bass guitar",
+      "train_files": 259,
+      "val_files": 51
+    },
+    {
+      "mid": "/m/0195fx",
+      "name": "Subway, metro, underground",
+      "train_files": 229,
+      "val_files": 28
+    },
+    {
+      "mid": "/m/0199g",
+      "name": "Bicycle",
+      "train_files": 111,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/019jd",
+      "name": "Boat, Water vehicle",
+      "train_files": 65,
+      "val_files": 16
+    },
+    {
+      "mid": "/m/01b82r",
+      "name": "Sawing",
+      "train_files": 85,
+      "val_files": 17
+    },
+    {
+      "mid": "/m/01b_21",
+      "name": "Cough",
+      "train_files": 208,
+      "val_files": 38
+    },
+    {
+      "mid": "/m/01bjv",
+      "name": "Bus",
+      "train_files": 164,
+      "val_files": 17
+    },
+    {
+      "mid": "/m/01d380",
+      "name": "Drill",
+      "train_files": 117,
+      "val_files": 25
+    },
+    {
+      "mid": "/m/01h8n0",
+      "name": "Conversation",
+      "train_files": 35,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/01hgjl",
+      "name": "Scratching (performance technique)",
+      "train_files": 199,
+      "val_files": 28
+    },
+    {
+      "mid": "/m/01hnzm",
+      "name": "Ringtone",
+      "train_files": 71,
+      "val_files": 5
+    },
+    {
+      "mid": "/m/01hsr_",
+      "name": "Sneeze",
+      "train_files": 46,
+      "val_files": 10
+    },
+    {
+      "mid": "/m/01j3sz",
+      "name": "Laughter",
+      "train_files": 708,
+      "val_files": 8
+    },
+    {
+      "mid": "/m/01jt3m",
+      "name": "Toilet flush",
+      "train_files": 137,
+      "val_files": 22
+    },
+    {
+      "mid": "/m/01kcd",
+      "name": "Brass instrument",
+      "train_files": 360,
+      "val_files": 1
+    },
+    {
+      "mid": "/m/01lsmm",
+      "name": "Scissors",
+      "train_files": 89,
+      "val_files": 16
+    },
+    {
+      "mid": "/m/01m2v",
+      "name": "Computer keyboard",
+      "train_files": 109,
+      "val_files": 20
+    },
+    {
+      "mid": "/m/01m4t",
+      "name": "Printer",
+      "train_files": 81,
+      "val_files": 15
+    },
+    {
+      "mid": "/m/01p970",
+      "name": "Tabla",
+      "train_files": 44,
+      "val_files": 8
+    },
+    {
+      "mid": "/m/01qbl",
+      "name": "Cymbal",
+      "train_files": 5,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/01s0vc",
+      "name": "Zipper (clothing)",
+      "train_files": 244,
+      "val_files": 41
+    },
+    {
+      "mid": "/m/01x3z",
+      "name": "Clock",
+      "train_files": 144,
+      "val_files": 1
+    },
+    {
+      "mid": "/m/01yrx",
+      "name": "Cat",
+      "train_files": 56,
+      "val_files": 1
+    },
+    {
+      "mid": "/m/020bb7",
+      "name": "Bird vocalization, bird call, bird song",
+      "train_files": 265,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/0239kh",
+      "name": "Cowbell",
+      "train_files": 148,
+      "val_files": 22
+    },
+    {
+      "mid": "/m/023pjk",
+      "name": "Cutlery, silverware",
+      "train_files": 190,
+      "val_files": 36
+    },
+    {
+      "mid": "/m/0242l",
+      "name": "Coin (dropping)",
+      "train_files": 333,
+      "val_files": 62
+    },
+    {
+      "mid": "/m/025_jnm",
+      "name": "Finger snapping",
+      "train_files": 110,
+      "val_files": 21
+    },
+    {
+      "mid": "/m/025rv6n",
+      "name": "Fowl",
+      "train_files": 61,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/026fgl",
+      "name": "Wind chime",
+      "train_files": 50,
+      "val_files": 11
+    },
+    {
+      "mid": "/m/026t6",
+      "name": "Drum",
+      "train_files": 121,
+      "val_files": 1
+    },
+    {
+      "mid": "/m/028ght",
+      "name": "Applause",
+      "train_files": 195,
+      "val_files": 35
+    },
+    {
+      "mid": "/m/02_41",
+      "name": "Fire",
+      "train_files": 309,
+      "val_files": 9
+    },
+    {
+      "mid": "/m/02_nn",
+      "name": "Fart",
+      "train_files": 464,
+      "val_files": 64
+    },
+    {
+      "mid": "/m/02bm9n",
+      "name": "Ratchet, pawl",
+      "train_files": 25,
+      "val_files": 6
+    },
+    {
+      "mid": "/m/02dgv",
+      "name": "Door",
+      "train_files": 61,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/02hnl",
+      "name": "Drum kit",
+      "train_files": 203,
+      "val_files": 34
+    },
+    {
+      "mid": "/m/02jz0l",
+      "name": "Water tap, faucet",
+      "train_files": 71,
+      "val_files": 13
+    },
+    {
+      "mid": "/m/02mk9",
+      "name": "Engine",
+      "train_files": 251,
+      "val_files": 2
+    },
+    {
+      "mid": "/m/02rtxlg",
+      "name": "Whispering",
+      "train_files": 135,
+      "val_files": 24
+    },
+    {
+      "mid": "/m/02sgy",
+      "name": "Electric guitar",
+      "train_files": 399,
+      "val_files": 56
+    },
+    {
+      "mid": "/m/02x984l",
+      "name": "Mechanical fan",
+      "train_files": 52,
+      "val_files": 8
+    },
+    {
+      "mid": "/m/02y_763",
+      "name": "Sliding door",
+      "train_files": 125,
+      "val_files": 18
+    },
+    {
+      "mid": "/m/02yds9",
+      "name": "Purr",
+      "train_files": 44,
+      "val_files": 11
+    },
+    {
+      "mid": "/m/02zsn",
+      "name": "Female speech, woman speaking",
+      "train_files": 313,
+      "val_files": 15
+    },
+    {
+      "mid": "/m/0316dw",
+      "name": "Typing",
+      "train_files": 97,
+      "val_files": 2
+    },
+    {
+      "mid": "/m/032s66",
+      "name": "Gunshot, gunfire",
+      "train_files": 282,
+      "val_files": 54
+    },
+    {
+      "mid": "/m/0342h",
+      "name": "Guitar",
+      "train_files": 375,
+      "val_files": 21
+    },
+    {
+      "mid": "/m/034srq",
+      "name": "Waves, surf",
+      "train_files": 126,
+      "val_files": 20
+    },
+    {
+      "mid": "/m/0395lw",
+      "name": "Bell",
+      "train_files": 215,
+      "val_files": 5
+    },
+    {
+      "mid": "/m/039jq",
+      "name": "Glass",
+      "train_files": 187,
+      "val_files": 3
+    },
+    {
+      "mid": "/m/03cczk",
+      "name": "Chewing, mastication",
+      "train_files": 146,
+      "val_files": 25
+    },
+    {
+      "mid": "/m/03dnzn",
+      "name": "Bathtub (filling or washing)",
+      "train_files": 56,
+      "val_files": 13
+    },
+    {
+      "mid": "/m/03kmc9",
+      "name": "Siren",
+      "train_files": 21,
+      "val_files": 4
+    },
+    {
+      "mid": "/m/03l9g",
+      "name": "Hammer",
+      "train_files": 109,
+      "val_files": 23
+    },
+    {
+      "mid": "/m/03m5k",
+      "name": "Harp",
+      "train_files": 149,
+      "val_files": 27
+    },
+    {
+      "mid": "/m/03m9d0z",
+      "name": "Wind",
+      "train_files": 206,
+      "val_files": 27
+    },
+    {
+      "mid": "/m/03q5_w",
+      "name": "Burping, eructation",
+      "train_files": 181,
+      "val_files": 31
+    },
+    {
+      "mid": "/m/03qc9zr",
+      "name": "Screaming",
+      "train_files": 173,
+      "val_files": 33
+    },
+    {
+      "mid": "/m/03qjg",
+      "name": "Harmonica",
+      "train_files": 138,
+      "val_files": 25
+    },
+    {
+      "mid": "/m/03qtq",
+      "name": "Hi-hat",
+      "train_files": 376,
+      "val_files": 63
+    },
+    {
+      "mid": "/m/03qtwd",
+      "name": "Crowd",
+      "train_files": 91,
+      "val_files": 26
+    },
+    {
+      "mid": "/m/03v3yw",
+      "name": "Keys jangling",
+      "train_files": 131,
+      "val_files": 24
+    },
+    {
+      "mid": "/m/03vt0",
+      "name": "Insect",
+      "train_files": 112,
+      "val_files": 2
+    },
+    {
+      "mid": "/m/03w41f",
+      "name": "Church bell",
+      "train_files": 49,
+      "val_files": 10
+    },
+    {
+      "mid": "/m/03wwcy",
+      "name": "Doorbell",
+      "train_files": 73,
+      "val_files": 11
+    },
+    {
+      "mid": "/m/042v_gx",
+      "name": "Acoustic guitar",
+      "train_files": 355,
+      "val_files": 62
+    },
+    {
+      "mid": "/m/0463cq4",
+      "name": "Crying, sobbing",
+      "train_files": 79,
+      "val_files": 15
+    },
+    {
+      "mid": "/m/04_sv",
+      "name": "Motorcycle",
+      "train_files": 95,
+      "val_files": 18
+    },
+    {
+      "mid": "/m/04brg2",
+      "name": "Dishes, pots, and pans",
+      "train_files": 191,
+      "val_files": 17
+    },
+    {
+      "mid": "/m/04k94",
+      "name": "Liquid",
+      "train_files": 199,
+      "val_files": 1
+    },
+    {
+      "mid": "/m/04s8yn",
+      "name": "Crow",
+      "train_files": 50,
+      "val_files": 11
+    },
+    {
+      "mid": "/m/04szw",
+      "name": "Musical instrument",
+      "train_files": 220,
+      "val_files": 8
+    },
+    {
+      "mid": "/m/05148p4",
+      "name": "Keyboard (musical)",
+      "train_files": 269,
+      "val_files": 12
+    },
+    {
+      "mid": "/m/053hz1",
+      "name": "Cheering",
+      "train_files": 55,
+      "val_files": 15
+    },
+    {
+      "mid": "/m/05kq4",
+      "name": "Ocean",
+      "train_files": 54,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/05r5c",
+      "name": "Piano",
+      "train_files": 677,
+      "val_files": 89
+    },
+    {
+      "mid": "/m/05r5wn",
+      "name": "Rattle (instrument)",
+      "train_files": 196,
+      "val_files": 33
+    },
+    {
+      "mid": "/m/05tny_",
+      "name": "Bark",
+      "train_files": 340,
+      "val_files": 54
+    },
+    {
+      "mid": "/m/05zppz",
+      "name": "Male speech, man speaking",
+      "train_files": 302,
+      "val_files": 33
+    },
+    {
+      "mid": "/m/0642b4",
+      "name": "Cupboard open or close",
+      "train_files": 48,
+      "val_files": 13
+    },
+    {
+      "mid": "/m/06_fw",
+      "name": "Skateboard",
+      "train_files": 72,
+      "val_files": 11
+    },
+    {
+      "mid": "/m/06h7j",
+      "name": "Run",
+      "train_files": 192,
+      "val_files": 26
+    },
+    {
+      "mid": "/m/06mb1",
+      "name": "Rain",
+      "train_files": 196,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/06rvn",
+      "name": "Snare drum",
+      "train_files": 631,
+      "val_files": 78
+    },
+    {
+      "mid": "/m/07brj",
+      "name": "Tambourine",
+      "train_files": 188,
+      "val_files": 33
+    },
+    {
+      "mid": "/m/07cx4",
+      "name": "Telephone",
+      "train_files": 415,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/07gql",
+      "name": "Trumpet",
+      "train_files": 504,
+      "val_files": 75
+    },
+    {
+      "mid": "/m/07jdr",
+      "name": "Train",
+      "train_files": 245,
+      "val_files": 42
+    },
+    {
+      "mid": "/m/07k1x",
+      "name": "Tools",
+      "train_files": 310,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/07p6fty",
+      "name": "Shout",
+      "train_files": 31,
+      "val_files": 2
+    },
+    {
+      "mid": "/m/07p7b8y",
+      "name": "Fill (with liquid)",
+      "train_files": 33,
+      "val_files": 2
+    },
+    {
+      "mid": "/m/07pb8fc",
+      "name": "Idling",
+      "train_files": 21,
+      "val_files": 9
+    },
+    {
+      "mid": "/m/07pbtc8",
+      "name": "Walk, footsteps",
+      "train_files": 275,
+      "val_files": 28
+    },
+    {
+      "mid": "/m/07pggtn",
+      "name": "Chirp, tweet",
+      "train_files": 146,
+      "val_files": 6
+    },
+    {
+      "mid": "/m/07pjwq1",
+      "name": "Buzz",
+      "train_files": 56,
+      "val_files": 3
+    },
+    {
+      "mid": "/m/07plct2",
+      "name": "Crushing",
+      "train_files": 102,
+      "val_files": 21
+    },
+    {
+      "mid": "/m/07plz5l",
+      "name": "Sigh",
+      "train_files": 38,
+      "val_files": 6
+    },
+    {
+      "mid": "/m/07pp_mv",
+      "name": "Alarm",
+      "train_files": 314,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/07pqc89",
+      "name": "Trickle, dribble",
+      "train_files": 15,
+      "val_files": 21
+    },
+    {
+      "mid": "/m/07pzfmf",
+      "name": "Crackle",
+      "train_files": 170,
+      "val_files": 21
+    },
+    {
+      "mid": "/m/07q2z82",
+      "name": "Accelerating, revving, vroom",
+      "train_files": 45,
+      "val_files": 6
+    },
+    {
+      "mid": "/m/07q6cd_",
+      "name": "Squeak",
+      "train_files": 253,
+      "val_files": 20
+    },
+    {
+      "mid": "/m/07q7njn",
+      "name": "Chink, clink",
+      "train_files": 166,
+      "val_files": 7
+    },
+    {
+      "mid": "/m/07qcpgn",
+      "name": "Tap",
+      "train_files": 138,
+      "val_files": 20
+    },
+    {
+      "mid": "/m/07qcx4z",
+      "name": "Tearing",
+      "train_files": 214,
+      "val_files": 37
+    },
+    {
+      "mid": "/m/07qjznl",
+      "name": "Tick-tock",
+      "train_files": 75,
+      "val_files": 10
+    },
+    {
+      "mid": "/m/07qjznt",
+      "name": "Tick",
+      "train_files": 37,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/07qn4z3",
+      "name": "Rattle",
+      "train_files": 93,
+      "val_files": 14
+    },
+    {
+      "mid": "/m/07qnq_y",
+      "name": "Thump, thud",
+      "train_files": 239,
+      "val_files": 37
+    },
+    {
+      "mid": "/m/07qqyl4",
+      "name": "Boom",
+      "train_files": 122,
+      "val_files": 23
+    },
+    {
+      "mid": "/m/07qrkrw",
+      "name": "Meow",
+      "train_files": 130,
+      "val_files": 22
+    },
+    {
+      "mid": "/m/07qs1cx",
+      "name": "Crack",
+      "train_files": 86,
+      "val_files": 16
+    },
+    {
+      "mid": "/m/07r04",
+      "name": "Truck",
+      "train_files": 64,
+      "val_files": 12
+    },
+    {
+      "mid": "/m/07r10fb",
+      "name": "Raindrop",
+      "train_files": 31,
+      "val_files": 2
+    },
+    {
+      "mid": "/m/07r4wb8",
+      "name": "Knock",
+      "train_files": 150,
+      "val_files": 31
+    },
+    {
+      "mid": "/m/07r5v4s",
+      "name": "Drip",
+      "train_files": 80,
+      "val_files": 4
+    },
+    {
+      "mid": "/m/07r660_",
+      "name": "Giggle",
+      "train_files": 83,
+      "val_files": 13
+    },
+    {
+      "mid": "/m/07rgt08",
+      "name": "Chuckle, chortle",
+      "train_files": 38,
+      "val_files": 4
+    },
+    {
+      "mid": "/m/07rjwbb",
+      "name": "Hiss",
+      "train_files": 107,
+      "val_files": 6
+    },
+    {
+      "mid": "/m/07rjzl8",
+      "name": "Slam",
+      "train_files": 201,
+      "val_files": 19
+    },
+    {
+      "mid": "/m/07rkbfh",
+      "name": "Chatter",
+      "train_files": 10,
+      "val_files": 3
+    },
+    {
+      "mid": "/m/07rn7sz",
+      "name": "Shatter",
+      "train_files": 300,
+      "val_files": 47
+    },
+    {
+      "mid": "/m/07rqsjt",
+      "name": "Whoosh, swoosh, swish",
+      "train_files": 225,
+      "val_files": 35
+    },
+    {
+      "mid": "/m/07rrlb6",
+      "name": "Splash, splatter",
+      "train_files": 186,
+      "val_files": 29
+    },
+    {
+      "mid": "/m/07s0dtb",
+      "name": "Gasp",
+      "train_files": 38,
+      "val_files": 8
+    },
+    {
+      "mid": "/m/07s0s5r",
+      "name": "Strum",
+      "train_files": 48,
+      "val_files": 12
+    },
+    {
+      "mid": "/m/07sr1lc",
+      "name": "Yell",
+      "train_files": 69,
+      "val_files": 8
+    },
+    {
+      "mid": "/m/07swgks",
+      "name": "Gurgling",
+      "train_files": 58,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/07yv9",
+      "name": "Vehicle",
+      "train_files": 52,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/081rb",
+      "name": "Writing",
+      "train_files": 211,
+      "val_files": 36
+    },
+    {
+      "mid": "/m/0838f",
+      "name": "Water",
+      "train_files": 61,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/083vt",
+      "name": "Wood",
+      "train_files": 83,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/085jw",
+      "name": "Wind instrument, woodwind instrument",
+      "train_files": 2458,
+      "val_files": 85
+    },
+    {
+      "mid": "/m/0912c9",
+      "name": "Vehicle horn, car horn, honking",
+      "train_files": 63,
+      "val_files": 12
+    },
+    {
+      "mid": "/m/09b5t",
+      "name": "Chicken, rooster",
+      "train_files": 111,
+      "val_files": 20
+    },
+    {
+      "mid": "/m/09ld4",
+      "name": "Frog",
+      "train_files": 46,
+      "val_files": 11
+    },
+    {
+      "mid": "/m/09x0r",
+      "name": "Speech",
+      "train_files": 407,
+      "val_files": 9
+    },
+    {
+      "mid": "/m/09xqv",
+      "name": "Cricket",
+      "train_files": 115,
+      "val_files": 21
+    },
+    {
+      "mid": "/m/0_ksk",
+      "name": "Power tool",
+      "train_files": 2,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/0bm02",
+      "name": "Bass drum",
+      "train_files": 155,
+      "val_files": 5
+    },
+    {
+      "mid": "/m/0brhx",
+      "name": "Speech synthesizer",
+      "train_files": 52,
+      "val_files": 3
+    },
+    {
+      "mid": "/m/0bt9lr",
+      "name": "Dog",
+      "train_files": 283,
+      "val_files": 2
+    },
+    {
+      "mid": "/m/0btp2",
+      "name": "Traffic noise, roadway noise",
+      "train_files": 45,
+      "val_files": 1
+    },
+    {
+      "mid": "/m/0c2wf",
+      "name": "Typewriter",
+      "train_files": 44,
+      "val_files": 3
+    },
+    {
+      "mid": "/m/0ch8v",
+      "name": "Livestock, farm animals, working animals",
+      "train_files": 238,
+      "val_files": 41
+    },
+    {
+      "mid": "/m/0cmf2",
+      "name": "Fixed-wing aircraft, airplane",
+      "train_files": 84,
+      "val_files": 12
+    },
+    {
+      "mid": "/m/0dv3j",
+      "name": "Boiling",
+      "train_files": 51,
+      "val_files": 10
+    },
+    {
+      "mid": "/m/0dv5r",
+      "name": "Camera",
+      "train_files": 254,
+      "val_files": 46
+    },
+    {
+      "mid": "/m/0dwsp",
+      "name": "Marimba, xylophone",
+      "train_files": 141,
+      "val_files": 16
+    },
+    {
+      "mid": "/m/0dwtp",
+      "name": "Glockenspiel",
+      "train_files": 47,
+      "val_files": 6
+    },
+    {
+      "mid": "/m/0dxrf",
+      "name": "Frying (food)",
+      "train_files": 56,
+      "val_files": 5
+    },
+    {
+      "mid": "/m/0f8s22",
+      "name": "Chime",
+      "train_files": 93,
+      "val_files": 2
+    },
+    {
+      "mid": "/m/0fqfqc",
+      "name": "Drawer open or close",
+      "train_files": 105,
+      "val_files": 19
+    },
+    {
+      "mid": "/m/0fx80y",
+      "name": "Plucked string instrument",
+      "train_files": 84,
+      "val_files": 1
+    },
+    {
+      "mid": "/m/0fx9l",
+      "name": "Microwave oven",
+      "train_files": 103,
+      "val_files": 21
+    },
+    {
+      "mid": "/m/0g6b5",
+      "name": "Fireworks",
+      "train_files": 303,
+      "val_files": 57
+    },
+    {
+      "mid": "/m/0ghcn6",
+      "name": "Growling",
+      "train_files": 55,
+      "val_files": 8
+    },
+    {
+      "mid": "/m/0gy1t2s",
+      "name": "Bicycle bell",
+      "train_files": 59,
+      "val_files": 14
+    },
+    {
+      "mid": "/m/0j45pbj",
+      "name": "Mallet percussion",
+      "train_files": 53,
+      "val_files": 6
+    },
+    {
+      "mid": "/m/0j6m2",
+      "name": "Stream",
+      "train_files": 138,
+      "val_files": 17
+    },
+    {
+      "mid": "/m/0jb2l",
+      "name": "Thunderstorm",
+      "train_files": 7,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/0jbk",
+      "name": "Animal",
+      "train_files": 87,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/0k4j",
+      "name": "Car",
+      "train_files": 170,
+      "val_files": 12
+    },
+    {
+      "mid": "/m/0k5j",
+      "name": "Aircraft",
+      "train_files": 71,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/0k65p",
+      "name": "Hands",
+      "train_files": 53,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/0l14_3",
+      "name": "Bowed string instrument",
+      "train_files": 1841,
+      "val_files": 80
+    },
+    {
+      "mid": "/m/0l14md",
+      "name": "Percussion",
+      "train_files": 34,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/0l15bq",
+      "name": "Clapping",
+      "train_files": 290,
+      "val_files": 39
+    },
+    {
+      "mid": "/m/0ltv",
+      "name": "Race car, auto racing",
+      "train_files": 25,
+      "val_files": 1
+    },
+    {
+      "mid": "/m/0lyf6",
+      "name": "Breathing",
+      "train_files": 318,
+      "val_files": 0
+    },
+    {
+      "mid": "/m/0mbct",
+      "name": "Gong",
+      "train_files": 175,
+      "val_files": 30
+    },
+    {
+      "mid": "/m/0mkg",
+      "name": "Accordion",
+      "train_files": 46,
+      "val_files": 6
+    },
+    {
+      "mid": "/m/0ngt1",
+      "name": "Thunder",
+      "train_files": 251,
+      "val_files": 27
+    },
+    {
+      "mid": "/m/0ytgt",
+      "name": "Child speech, kid speaking",
+      "train_files": 124,
+      "val_files": 11
+    },
+    {
+      "mid": "/t/dd00003",
+      "name": "Male singing",
+      "train_files": 56,
+      "val_files": 6
+    },
+    {
+      "mid": "/t/dd00004",
+      "name": "Female singing",
+      "train_files": 103,
+      "val_files": 22
+    },
+    {
+      "mid": "/t/dd00077",
+      "name": "Mechanisms",
+      "train_files": 205,
+      "val_files": 6
+    },
+    {
+      "mid": "/t/dd00112",
+      "name": "Crumpling, crinkling",
+      "train_files": 165,
+      "val_files": 26
+    },
+    {
+      "mid": "/t/dd00130",
+      "name": "Engine starting",
+      "train_files": 45,
+      "val_files": 12
+    },
+    {
+      "mid": "/t/dd00134",
+      "name": "Car passing by",
+      "train_files": 56,
+      "val_files": 0
+    }
+  ],
+  "sources": {
+    "dev_csv": "/data/cse12110411/FSD50K/FSD50K.ground_truth/dev.csv",
+    "dev_csv_sha256": "ce4ab5f01baa5a52b0ec892edaf137a7560743fce3a70155f8bf975c197ded1b",
+    "ontology_sha256": "9c685f4403eecc3ca9be37fd7285cf212feaaea6ff7229d3e7ca89e0d1f2d15d",
+    "class_map_sha256": "cdd1049833c4b86127c2773ac0d14a2754b6a6d0d1798002ed5c66e699708429",
+    "prior_audit_inventory_sha256": {
+      "train": "751da40b31c0e08bdf05004279762e041c7061c1f004c84128958d9fa112cc18",
+      "val": "113b54d0348ec2f6aa69ac774082e6bf2ad71de849a782a78b9e57f490ee6987"
+    },
+    "duplicate_train_exclusions": [
+      "51749"
+    ],
+    "zero_source_exclusions": {
+      "train": [
+        "166709",
+        "176970",
+        "368070"
+      ],
+      "val": []
+    }
+  }
+}
