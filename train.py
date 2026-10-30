@@ -73,6 +73,9 @@ def _resume_checkpoint(callback, run_dir):
 def main(hparams, resume_run_dir=None, checkpoint_dir=None, extra_callbacks=()):
     hparams.save_path = str(training_path(hparams.save_path))
     validate_training_data_config(hparams)
+    smallfit = getattr(hparams, 'tse_smallfit', False)
+    if smallfit and resume_run_dir:
+        raise ValueError('Fixed-mixture smallfit requires a fresh, single-allocation run')
     if hparams.seed is None:
         hparams.seed = random.getrandbits(16)
     hparams.cudnn_deterministic = bool(hparams.cudnn_deterministic)
@@ -98,7 +101,10 @@ def main(hparams, resume_run_dir=None, checkpoint_dir=None, extra_callbacks=()):
         pilot_callback.prepare_run(hparams)
         extra_callbacks = (*extra_callbacks, pilot_callback)
 
-    record_run(hparams, resume_run_dir=resume_run_dir)
+    recorded_run = record_run(hparams, resume_run_dir=resume_run_dir)
+    if smallfit:
+        from utils.tse_smallfit_callback import TSESmallfitCallback
+        extra_callbacks = (*extra_callbacks, TSESmallfitCallback(recorded_run))
 
     tensorboard = MyTensorBoardLogger(
         save_dir=hparams.save_path,
@@ -130,8 +136,9 @@ def main(hparams, resume_run_dir=None, checkpoint_dir=None, extra_callbacks=()):
 
     #创建lightning trainer
     trainer = Trainer(
-        min_epochs=hparams.epochs,
+        min_epochs=0 if smallfit else hparams.epochs,
         max_epochs=hparams.epochs,
+        max_steps=hparams.max_steps if smallfit else -1,
         logger=tensorboard,
         limit_train_batches=hparams.train_percent_check,
         limit_val_batches=hparams.val_percent_check,
@@ -146,13 +153,17 @@ def main(hparams, resume_run_dir=None, checkpoint_dir=None, extra_callbacks=()):
         enable_progress_bar=False,
         benchmark=hparams.cudnn_benchmark,
         deterministic=hparams.cudnn_deterministic,
-        num_sanity_val_steps=getattr(hparams, 'num_sanity_val_steps', 10),
+        num_sanity_val_steps=-1 if smallfit else getattr(hparams, 'num_sanity_val_steps', 10),
+        **({'val_check_interval': hparams.tse_smallfit_eval_every,
+            'check_val_every_n_epoch': None} if smallfit else {}),
         log_every_n_steps=getattr(hparams, 'log_every_n_steps', 50),
         **({'precision': getattr(hparams, 'precision', '32-true'),
             'accumulate_grad_batches': getattr(hparams, 'accumulate_grad_batches', 1)}),
     )
 
-    if hparams.dataset in ('audioset_strong_dual_fsd_wrong_tse',
+    if smallfit:
+        from tse_smallfit_separator import TSESmallfitSeparator as TSESourceSeparator
+    elif hparams.dataset in ('audioset_strong_dual_fsd_wrong_tse',
                            'audioset_strong_dual_fsd_hierarchy_tse_v2'):
         from tse_dual_separator import TSEDualSourceSeparator as TSESourceSeparator
     else:

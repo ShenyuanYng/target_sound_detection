@@ -17,12 +17,14 @@ exp_def="exp_defs/tse_strong_dual_fsd_hierarchy_v2.yaml"
 # exp_def="exp_defs/tse_strong_dual_fsd_wrong_fast.yaml"
 # exp_def="exp_defs/tse_strong_dual_fsd_wrong_single.yaml"
 # exp_def="exp_defs/tse_hierarchy_v2_pilot_10pct_bf16.yaml"  # pilot 仅 num_jobs=1
+# exp_def="exp_defs/tse_hierarchy_v2_smallfit.yaml"  # 固定 256/128 条混音，8000 step，单次作业
 
 # 常用训练参数：留空表示继承 YAML，切换 pilot 时不会覆盖它的 5 epoch / BF16 设置。
 # 需要覆盖时直接赋值，例如 batch_size=4、learning_rate=0.0001。
 batch_size=""                        # 层级主配置：2
 learning_rate=""                     # 层级主配置：0.0001
 epochs=""                            # 层级主配置：50
+max_steps=""                         # smallfit：8000；其他配置按 epochs 结束
 patience=""                          # 层级主配置：5
 num_workers=""                       # 层级主配置：2
 seed=""                              # 层级主配置：7（不改变 mix_seed）
@@ -52,7 +54,7 @@ options=(
 )
 [[ -z "$python_bin" ]] || options+=(--python-bin "$python_bin")
 [[ -z "$account" ]] || options+=(--account "$account")
-for name in batch_size learning_rate epochs patience num_workers seed \
+for name in batch_size learning_rate epochs max_steps patience num_workers seed \
             train_percent_check val_percent_check precision accumulate_grad_batches; do
     value="${!name}"
     [[ -z "$value" ]] || options+=("--${name//_/-}" "$value")

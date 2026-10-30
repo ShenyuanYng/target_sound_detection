@@ -3,6 +3,8 @@ import math
 
 
 def validate_tse_config(hp):
+    from utils.tse_smallfit_config import validate_smallfit_config
+    validate_smallfit_config(hp)
     from datasets.tse_hierarchy_labels import MODE as HIERARCHY_MODE
     dual = hp.dataset in ('audioset_strong_dual_fsd_wrong_tse', HIERARCHY_MODE)
     if hp.dataset == HIERARCHY_MODE:

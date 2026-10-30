@@ -41,6 +41,7 @@ TRAINING_OVERRIDES = {
     'batch_size': int, 'learning_rate': float, 'epochs': int, 'patience': int,
     'num_workers': int, 'seed': int, 'train_percent_check': float,
     'val_percent_check': float, 'precision': str, 'accumulate_grad_batches': int,
+    'max_steps': int,
 }
 
 
@@ -55,6 +56,8 @@ def run_name_prefix(config, tag=''):
     validate_tag(tag)
     name = (f'run_b{config["batch_size"]}_lr{config["learning_rate"]:g}'
             f'_e{config["epochs"]}_{config.get("precision", "32-true")}')
+    if config.get('tse_smallfit'):
+        name += f'_smallfit_s{config["max_steps"]}'
     return name + (f'_{tag}' if tag else '')
 
 
@@ -65,6 +68,8 @@ def submission_run(config, spec, job):
 
 def prepare_config(config, node, manifest_tag=''):
     config = dict(config)
+    if 'max_steps' in config and not config.get('tse_smallfit'):
+        raise ValueError('max_steps is currently supported by the fixed-mixture smallfit configuration only')
     validate_tag(manifest_tag)
     if config.get('dataset') not in VARIANTS or config.get('test_after_fit') is not False:
         raise ValueError('Expected TSE Train/CV configuration')
@@ -89,7 +94,8 @@ def prepare_config(config, node, manifest_tag=''):
         raise ValueError('precision must be 32-true, 16-mixed or bf16-mixed')
     root, audio = PROFILES[node]
     variant = VARIANTS[config['dataset']]
-    derived = EXPERIMENTS/'manifests'/variant/node
+    run_variant = variant + ('_smallfit' if config.get('tse_smallfit') else '')
+    derived = EXPERIMENTS/'manifests'/run_variant/node
     if manifest_tag:
         derived = derived/manifest_tag
     if variant == 'tse_phase1':
@@ -104,7 +110,7 @@ def prepare_config(config, node, manifest_tag=''):
         mix_cache_dir=str(audio_cache),
         mix_cv_manifest_path=str(derived/'cv_seed7.json'),
         mix_background_split_path=str(derived/'background_split.json'),
-        accelerator='gpu', devices=1, save_path=str(EXPERIMENTS/variant/node),
+        accelerator='gpu', devices=1, save_path=str(EXPERIMENTS/run_variant/node),
         save_name='run_pending')
     if config.get('tse_ontology_path'):
         config['tse_ontology_path'] = str(PROJECT/config['tse_ontology_path'])
@@ -126,8 +132,8 @@ def submit(args):
     config = prepare_config(config, args.node, getattr(args, 'manifest_tag', ''))
     if args.num_jobs < 1 or args.cpus < 1:
         raise ValueError('Job/CPU counts must be positive')
-    if config.get('tse_pilot_artifacts') and args.num_jobs != 1:
-        raise ValueError('Pilot export runs use one allocation; choose --num-jobs 1')
+    if (config.get('tse_pilot_artifacts') or config.get('tse_smallfit')) and args.num_jobs != 1:
+        raise ValueError('Diagnostic runs use one allocation; choose --num-jobs 1')
     # Keep the environment's executable path: resolving a venv symlink can
     # accidentally launch its base interpreter without the installed packages.
     executable = shutil.which(args.python_bin)

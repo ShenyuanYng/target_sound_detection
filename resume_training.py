@@ -19,6 +19,8 @@ def resume_settings(checkpoint, run_dir):
     if not (training_path(run_dir) / ".tse_run_created").is_file():
         raise ValueError("Only standalone TSE runs may resume")
     hp = argparse.Namespace(**dict(checkpoint["hyper_parameters"]))
+    if getattr(hp, 'tse_smallfit', False):
+        raise ValueError('Fixed-mixture smallfit uses one fresh allocation; do not resume it')
     overrides = read_runtime_overrides(run_dir)
     if overrides and hp.dataset != 'audioset_strong_dual_fsd_wrong_tse':
         raise ValueError('Runtime overrides apply only to experiment 3')

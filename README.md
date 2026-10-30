@@ -27,6 +27,7 @@ TensorBoard、指标、checkpoint 和调度日志。历史 TSE 实验留在原�
 | `tse_strong_dual_fsd_wrong_single.yaml` | A/B/Wrong 等概率单条件训练 |
 | `tse_strong_dual_fsd_hierarchy_v2.yaml` | 层级标签归约后的 188 类版本 |
 | `tse_hierarchy_v2_pilot_10pct_bf16.yaml` | 保留现有 10%/BF16 pilot 设置与诊断 |
+| `tse_hierarchy_v2_smallfit.yaml` | 八类固定 256/128 条混音，8000 step 分离能力小训 |
 
 配置都在 `exp_defs/`。依赖版本见 `requirements.txt`；可继续使用现有 `audioset` 环境。
 
@@ -83,6 +84,63 @@ python resume_training.py --run-dir /home/syy12632604/projects/TSE/experiments/<
 恢复读取该 run 的冻结设置和 checkpoint，保留优化器、学习率调度器与训练进度。
 首次训练记录 `.tse_run_created`；迁移前的 checkpoint 不用于本项目续训。
 不要移动已开始的新 run。pilot 专用诊断保留单次运行限制。
+
+## 修改 loss 后的固定数据小训
+
+入口仍是 `run.sh → spksep_run.sh → tools/submit_training.py → train.py`。
+可以在 `run.sh` 顶部选择 `exp_defs/tse_hierarchy_v2_smallfit.yaml`，或直接传参。
+具体类别、混音数量、最大 step 和评估间隔集中在这个 YAML 中；不修改正式训练配置。
+
+```bash
+cd /home/syy12632604/projects/TSE
+# 预览：不读取音频、不创建 run、不提交作业。
+bash run.sh --exp-def exp_defs/tse_hierarchy_v2_smallfit.yaml \
+  --node ailab01 --num-jobs 1 --tag smallfit8k --manifest-tag smallfit8k_v1
+# 提交：数据构建、基线检查、训练和评估均在分配的 GPU 节点执行。
+bash run.sh --stage 1 --exp-def exp_defs/tse_hierarchy_v2_smallfit.yaml \
+  --node ailab01 --num-jobs 1 --tag smallfit8k --manifest-tag smallfit8k_v1 \
+  --cpus 8 --mem 32G --time 1-00:00:00
+```
+
+服务器 `audioset` 环境已有 matplotlib；其他环境需要安装 `requirements.txt` 中的绘图库。
+本次配置从随机权重训练到 **8000 次参数更新**，保留 batch=2、LR=1e-4、BF16、
+`sampled_one`、原模型和 RI+Mag loss。训练/验证比例都是浮点 `1.0`。
+63 epoch 只是覆盖 8000 step 的上界；256 条训练数据每轮 128 个 batch，
+实际在第 63 轮中途达到 step 上限停止，不会等待完整的第 63 轮。
+
+八类为 Bark、Meow、Cough、Computer keyboard、Walk/footsteps、Piano、Clapping、Thunder。
+保持完整的 188 类训练词表和 527 维条件输入，只限制本次正、负条件的抽样范围。
+按原始完整标签排除冲突，不能合法共存的类别不会硬配对（例如带 Animal 父标签的 Bark/Meow）。
+每个 split 的 A/B 类别计数分别均衡；每个背景各生成一条非重叠和一条重叠混音。
+八类范围内没有合法配对的候选背景按配置的 `exclude` 策略排除，并记录在数据报告中。
+沿用官方音源划分和原背景划分，检查 ID、原视频、路径及内容哈希泄漏。
+新清单记录源文件、裁剪、位置、SNR、种子、增益和最终波形哈希，生成后预载到内存，
+每轮只打乱顺序，不重新抽取声音或重新混音。原始音频和可复用缓存保留在计算节点。
+
+step 0 做完整 Train/CV 基线和 oracle RI、零输出、原混音对照，检查 STFT/iSTFT 重建。
+之后每 **500 step** 在 eval 模式下完整评估 256 条训练混音和 128 条验证混音，
+每条都计算 A/B/wrong。1000、2000 step 在汇总中标为重点检查点，**不自动早停**。
+ReduceLROnPlateau 只在这些完整评估结束时读取新的 val_loss，patience=5 按评估次数计；
+不会在中间短 epoch 上重复使用旧的验证值。训练日志仍保留 sampled_one 的 batch/epoch loss；
+对比分离能力请用 `train_eval` 与 `val`。
+
+输出位于 `experiments/tse_hierarchy_v2_smallfit/ailab01/<run>/`：
+
+- `effective_config.yaml`、`source_provenance.json`：有效配置、Git revision、源码 SHA-256。
+- `fixed_data/`：Train/CV 固定清单、类别/重叠分布和来源隔离检查。
+- `step_metrics.jsonl`、`evaluations/step_XXXXXXXX/`：逐步汇总及逐条件 CSV；
+  A/B 的 SI-SDRi 均值、中位数、改善比例和输出/GT 能量比，wrong 输出/混音能量比，
+  重叠分组指标与 A/B 输出相关系数。`sR/sI/sM` 的 CSV 值是所在 batch 的分量均值，
+  汇总按实际样本数加权；总 loss 和 SI-SDRi 是逐样本值。
+- `listening/train_eval/`、`listening/val/`：各八条固定样本，覆盖八类 A 条件和两种重叠情况。
+  混音、GT、背景只存一次；每个 step 保存三条件 FLOAT WAV 和六联频谱图。
+  音频不独立归一化，频谱统一使用 -100～0 dB 色标。
+- `checkpoints/step_XXXXXXXX.ckpt`：每 500 step 的模型；`version_<job>/` 保留最佳 val_loss
+  checkpoint 和 TensorBoard，`mylast.ckpt` 保留最新状态，`status.json` 记录运行状态。
+- `logs/training.log`：训练日志；初始 Slurm 日志仍在提交器打印的 `.submissions/` 路径。
+
+此入口是单次分配的诊断训练，禁止续训或串行续作业；中断后使用新 run 从头启动。
+固定小训并非全类别效果评测；通过后再扩大类别/数据，并使用原完整验证集。
 
 ## 检查与工具
 

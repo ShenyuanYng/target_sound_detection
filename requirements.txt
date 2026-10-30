@@ -10,3 +10,4 @@ loguru==0.4.1
 PyYAML==5.4
 setuptools==69.5.1
 tensorboard==2.14.0
+matplotlib==3.7.5

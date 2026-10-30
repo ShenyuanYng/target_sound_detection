@@ -84,7 +84,7 @@ class TSEHierarchyDataset(Dataset):
                  snr_db=None, snr_db_range=(-5., 5.), threshold_dbfs=-40., frame_ms=20.,
                  max_pair_attempts=128, max_crop_attempts=128, num_classes=527,
                  zero_fsd_policy='exclude', zero_background_policy='exclude',
-                 no_pair_policy='error', fsd_audit=None):
+                 no_pair_policy='error', fsd_audit=None, prepare_manifest=True):
         if partition not in ('tr', 'cv') or no_pair_policy not in ('error', 'exclude'):
             raise ValueError('Invalid partition or no-pair policy')
         if min(max_pair_attempts, max_crop_attempts) < 1:
@@ -177,7 +177,7 @@ class TSEHierarchyDataset(Dataset):
             placement_policy='one nonoverlap and one 25%-50% shorter-interval overlap slot per background',
             wrong_condition_mids=sorted(self.wrong_pool))
         self.manifest = None
-        if partition == 'cv':
+        if partition == 'cv' and prepare_manifest:
             code_files = ('datasets/tse_hierarchy_dataset.py', 'datasets/tse_hierarchy_labels.py',
                 'datasets/tse_dual_mix.py',
                 'datasets/tse_ontology.py', 'datasets/mix_utils.py', 'datasets/active_rms.py',
