@@ -19,6 +19,7 @@ exp_def="exp_defs/tse_strong_dual_fsd_hierarchy_v2.yaml"
 # exp_def="exp_defs/tse_hierarchy_v2_pilot_10pct_bf16.yaml"  # pilot 仅 num_jobs=1
 # exp_def="exp_defs/tse_hierarchy_v2_smallfit.yaml"  # 固定 256/128 条混音，8000 step，单次作业
 # exp_def="exp_defs/tse_hierarchy_v2_smallfit_correct.yaml"  # 同一批固定样本，只训练 A/B
+# exp_def="exp_defs/tse_hierarchy_v2_smallfit_correct_std.yaml"  # 同一 A/B 小训，mix/GT 同除 mix std
 
 # 常用训练参数：留空表示继承 YAML，切换 pilot 时不会覆盖它的 5 epoch / BF16 设置。
 # 需要覆盖时直接赋值，例如 batch_size=4、learning_rate=0.0001。

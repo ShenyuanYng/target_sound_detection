@@ -79,9 +79,14 @@ class TSEDualSourceSeparator(TSESourceSeparator):
                         self.hparams.get('tse_condition_backward', 'combined'),
                         float(loss.detach()), allocated, reserved)
 
-    def _condition_step(self, mixture, condition, target, name, weight, overlap, phase, selection):
+    def _condition_prediction(self, mixture, condition, target):
+        """Return a waveform in the input amplitude scale and the training losses."""
         predictions = self.forward(dict(mixture_waveform=mixture, condition=condition))
         losses = self.loss(predictions, dict(target_waveform=target, mixture_waveform=mixture))
+        return predictions['target_waveform'], losses
+
+    def _condition_step(self, mixture, condition, target, name, weight, overlap, phase, selection):
+        waveform, losses = self._condition_prediction(mixture, condition, target)
         if not all(torch.isfinite(v).all() for v in losses.values()):
             raise FloatingPointError(f'Nonfinite {name} RI loss')
         self.log_dict({f'{phase}_loss_{name}': losses['loss'].detach(),
@@ -97,7 +102,7 @@ class TSEDualSourceSeparator(TSESourceSeparator):
             count = int(mask.sum())
             if count:
                 per_condition = losses['per_example_loss'][mask]
-                self._metric_sums[phase].update(label, predictions['target_waveform'][mask],
+                self._metric_sums[phase].update(label, waveform[mask],
                     target[mask], mixture[mask], per_condition, overlap[mask])
                 mean = per_condition.mean().detach()
                 if name in ('correct', 'selected'):

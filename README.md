@@ -175,6 +175,40 @@ bash run.sh --stage 1 --use-slurm 1 \
 `experiments/tse_hierarchy_v2_smallfit/ailab01/run_b2_lr0.0001_e63_bf16-mixed_smallfit_s8000_correct8k_job<ID>/`，
 每 500 step 的评估、试听和 checkpoint 布局沿用前述小训。
 
+### 按老师的 mix std 归一化对照
+
+`tse_hierarchy_v2_smallfit_correct_std.yaml` 在上述 A/B 小训基础上设置 `rms_norm: 2`。
+仍从随机权重开始，重放 job39909 的同一批 256/128 条混音，保持 batch=2、LR=1e-4、
+BF16、8000 step、每 500 step 完整评估，以及不加入 wrong 训练。旧配置保留 `rms_norm: 0`。
+
+归一化在小训 separator 中统一处理，固定数据集继续保存混音后的原始幅度和波形哈希：
+
+1. 对最终混音沿时间轴计算每条样本的 `std`，使用总体标准差（`ddof=0`）；
+   std 恰好为 0 时取 1。不减去波形均值，不分别归一化各目标。
+2. 输入网络的是 `mix / std`，GT 为 `target / std`；RI+Mag loss 的预测、GT 和
+   mixture 分母全部使用这一归一化尺度，loss 公式保持不变。
+3. iSTFT 得到的预测波形乘回同一个 std，再计算波形指标、导出 FLOAT WAV 和频谱图。
+   mixture、GT、background 从固定数据集读取，已经是原幅度，无需重复恢复或单独调整音量。
+
+训练、完整 Train/CV 评估和 step 0 的 oracle/zero/mixture loss 基线采用同一流程。
+`metrics.json` 与 `step_metrics.jsonl` 用 `loss_domain=mixture_std_normalized`、
+`waveform_domain=original` 标明尺度。新旧 loss 的数值不保证严格可比（公式含固定的
+`1e-5` 稳定项），应同时对比同一步的 SI-SDRi、输出/GT 能量比、试听和各自零输出基线。
+std 归一化本身不保证解决静音塌缩，分离效果仍由这次对照验证。
+
+更新服务器代码后，在登录节点、未进入其他 Slurm 作业时执行，训练分配到 **ailab01**：
+
+```bash
+cd /home/syy12632604/projects/TSE
+bash run.sh --stage 1 --use-slurm 1 \
+  --exp-def exp_defs/tse_hierarchy_v2_smallfit_correct_std.yaml \
+  --node ailab01 --num-jobs 1 --tag correctstd8k --manifest-tag correctstd8k_v1 \
+  --cpus 8 --mem 32G --time 1-00:00:00
+```
+
+新 run 写入 `experiments/tse_hierarchy_v2_smallfit/ailab01/`，目录名包含
+`correctstd8k_job<ID>`；不会覆盖旧实验。去掉 `--stage 1` 可先只预览配置。
+
 ## 检查与工具
 
 所有配置预览和作业提交统一使用 `run.sh` / `tools/submit_training.py`。

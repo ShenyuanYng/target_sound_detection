@@ -52,6 +52,25 @@ class TSESmallfitSeparator(TSEDualSourceSeparator):
         self.eval_rows = {phase: [] for phase in ('train_eval', 'val')}
         self.eval_audio = {phase: {} for phase in self.eval_rows}
 
+    def _loss_waveforms(self, mixture, target):
+        if self.hparams.rms_norm == 0:
+            return mixture, target, torch.ones_like(mixture[:, :1])
+        # Teacher rms_norm=2: per-mixture np.std(..., ddof=0), without subtracting
+        # the mean from either waveform. Both GTs use this same mixture scale.
+        with torch.autocast(device_type=mixture.device.type, enabled=False):
+            mix_std = mixture.float().std(dim=-1, keepdim=True, correction=0)
+            mix_std = torch.where(mix_std == 0, torch.ones_like(mix_std), mix_std)
+            return mixture.float() / mix_std, target.float() / mix_std, mix_std
+
+    def _condition_prediction(self, mixture, condition, target):
+        if self.hparams.rms_norm == 0:
+            return super()._condition_prediction(mixture, condition, target)
+        loss_mix, loss_target, mix_std = self._loss_waveforms(mixture, target)
+        waveform, losses = super()._condition_prediction(loss_mix, condition, loss_target)
+        # RI loss stays in the normalized domain. Only the waveform used for
+        # metrics/listening returns to the original mixture/GT amplitude scale.
+        return waveform * mix_std, losses
+
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
         phase = ('train_eval', 'val')[dataloader_idx]
         inputs, targets = batch
@@ -62,24 +81,25 @@ class TSESmallfitSeparator(TSEDualSourceSeparator):
         estimates = {}
         for name in ('a', 'b', 'wrong'):
             target = unpack_waveform(targets[f'target_{name}'])
-            prediction = self(dict(mixture_waveform=mixture,
-                                   condition=unpack_waveform(inputs[f'condition_{name}'])))
-            losses = self.loss(prediction, dict(target_waveform=target, mixture_waveform=mixture))
+            waveform, losses = self._condition_prediction(mixture,
+                unpack_waveform(inputs[f'condition_{name}']), target)
             if not all(torch.isfinite(value).all() for value in losses.values()):
                 raise FloatingPointError(f'Nonfinite smallfit {phase}/{name} loss')
-            waves, references = prediction['target_waveform'].float().cpu().numpy(), target.float().cpu().numpy()
+            waves, references = waveform.float().cpu().numpy(), target.float().cpu().numpy()
             estimates[name] = waves
             baselines = {}
             if self.trainer.sanity_checking:
+                loss_mix, loss_target, mix_std = self._loss_waveforms(mixture, target)
                 with torch.autocast(device_type=mixture.device.type, enabled=False):
-                    oracle = do_stft(target.float(), self.hparams.tse_window, self.hparams.tse_hop)
+                    oracle = do_stft(loss_target.float(), self.hparams.tse_window, self.hparams.tse_hop)
                     restored = do_istft(oracle, self.hparams.tse_window,
-                                       self.hparams.tse_window, self.hparams.tse_hop)[..., :target.shape[-1]]
+                                       self.hparams.tse_window, self.hparams.tse_hop)[..., :target.shape[-1]] * mix_std
                     if not torch.allclose(restored, target.float(), atol=2e-6, rtol=1e-5):
                         raise ValueError('STFT/iSTFT oracle reconstruction failed')
                     for label, ri in (('oracle', oracle), ('zero', torch.zeros_like(oracle)),
-                            ('mixture', do_stft(mixture.float(), self.hparams.tse_window, self.hparams.tse_hop))):
-                        result = self.loss(dict(target_ri=ri), dict(target_waveform=target, mixture_waveform=mixture))
+                            ('mixture', do_stft(loss_mix.float(), self.hparams.tse_window, self.hparams.tse_hop))):
+                        result = self.loss(dict(target_ri=ri),
+                                           dict(target_waveform=loss_target, mixture_waveform=loss_mix))
                         baselines[label] = result['per_example_loss'].cpu().tolist()
                     if max(baselines['oracle']) > 1e-6:
                         raise ValueError('Ground-truth RI must have zero loss')
@@ -96,7 +116,7 @@ class TSESmallfitSeparator(TSEDualSourceSeparator):
                 self.eval_rows[phase].append(metrics)
                 if index in selected:
                     self.eval_audio[phase].setdefault(index, {})[name] = waves[row].copy()
-            del prediction, losses
+            del waveform, losses
         for row in range(count):
             a, b = (estimates[name][row].astype(np.float64) for name in ('a', 'b'))
             a, b = a - a.mean(), b - b.mean()

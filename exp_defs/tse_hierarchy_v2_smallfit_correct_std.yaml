@@ -1,0 +1,122 @@
+# Teacher mix-std normalization: same A/B-only fixed mixtures and 8000 steps.
+batch_size: 2
+epochs: 63
+seed: 7
+shuffle: true
+num_workers: 2
+learning_rate: 0.0001
+decay_factor: 0.5
+patience: 5
+gradient_clip_val: 5.0
+accelerator: gpu
+devices: 1
+distributed_backend: auto
+save_path: /home/syy12632604/projects/TSE/experiments/tse_hierarchy_v2_smallfit
+save_name: smallfit_correct_std_8000
+train_percent_check: 1.0
+val_percent_check: 1.0
+num_sanity_val_steps: -1  # step 0 完整评估两个固定集合
+log_every_n_steps: 1
+tse_log_batch_loss: true
+tse_pilot_artifacts: false
+tse_record_overlap_loss: false
+dataset: audioset_strong_dual_fsd_hierarchy_tse_v2
+task_type: tse
+collate_type: sequence
+feature_type: waveform
+data_path: /hdd2/syy12632604/AudioSet
+class_map_path: metadata/class_labels_indices.csv
+samplerate: 16000
+rms_norm: 2  # mix 与 GT 同除每条 mix 的 std；归一化尺度 loss，试听前恢复幅度
+train_on_chunk: 10.0
+pad_back_or_front: 0
+model_name: TSEDPRNNTF
+num_classes: 527
+loss_type: ratiol1
+rix2_flag: 1
+mag_flag: 1
+permutation_invariant: 0
+mc_flag: 0
+cudnn_deterministic: 1
+cudnn_benchmark: 0
+train_val_fraction: 0.15
+train_split_seed: 7
+test_after_fit: false
+mix_audio_dirs:
+- /hdd2/cse30029918/corpora/AudioSetRaw/balance_wav
+mix_weak_csvs:
+- metadata/balanced_train_segments.csv
+mix_strict_paths: false
+mix_background_split_path: /home/syy12632604/projects/TSE/experiments/manifests/tse_hierarchy_v2_smallfit/ailab01/background_split.json
+mix_fsd_dev_audio: /data/cse12110411/FSD50K/FSD50K.dev_audio
+mix_fsd_ground_truth: /data/cse12110411/FSD50K/FSD50K.ground_truth
+mix_fsd_split_path: mix_train_cv_seed7/fsd_official_train_val.json
+mix_cache_dir: /data/syy12632604/tse_hierarchy_v2/fsd_cache_16k
+mix_cv_manifest_path: /home/syy12632604/projects/TSE/experiments/manifests/tse_hierarchy_v2_smallfit/ailab01/cv_seed7.json
+mix_zero_fsd_policy: exclude
+mix_zero_background_policy: exclude
+mix_seed: 7
+mix_snr_db: null
+mix_snr_db_range: [-5.0, 5.0]
+mix_fsd_rms_mode: active
+mix_active_threshold_dbfs: -40.0
+mix_active_frame_ms: 20.0
+mix_normalization: peak
+init_model_checkpoint: null
+mix_parent_background_split_path: mix_train_cv_seed7/audioset_background_seed7.json
+mix_strong_tsv: metadata/audioset_train_strong.tsv
+mix_strong_annotation_complete: true
+mix_content_duplicate_exclusions:
+  audioset: [iZtF1lUPbEQ_20000]
+  fsd50k: ['51749']
+precision: bf16-mixed
+accumulate_grad_batches: 1
+tse_gradient_checkpointing: true
+tse_train_condition_mode: sampled_correct  # 每条混音只在 A/B 中等概率选择一个条件
+tse_condition_backward: combined
+tse_no_pair_policy: exclude  # 八类子任务中无合法配对的背景记录后排除
+tse_condition_dim: 128
+tse_emb_dim: 128
+tse_hidden: 200
+tse_layers: 4
+tse_emb_ks: 1
+tse_emb_hs: 1
+tse_seqmodel_type: 3861
+tse_window: 256
+tse_hop: 128
+tse_silence_rms: 1.0e-05
+tse_return_ri: true
+tse_ontology_path: metadata/audioset_ontology.json
+tse_dual_max_pair_attempts: 128
+tse_dual_max_crop_attempts: 128
+
+# Independent artifacts; never point these at a v1 run or manifest.
+tse_artifact_root: /home/syy12632604/projects/TSE/experiments/manifests/tse_hierarchy_v2_smallfit/ailab01
+tse_label_policy: annotated-most-specific-singleton-v2
+tse_expected_condition_classes: 188
+tse_condition_vocabulary_path: /home/syy12632604/projects/TSE/experiments/manifests/tse_hierarchy_v2_smallfit/ailab01/condition_vocabulary.json
+
+# 更新步数独立于小数据集的 epoch；每 500 step 完整评估 Train/CV。
+tse_smallfit: true
+max_steps: 8000
+tse_smallfit_eval_every: 500
+tse_smallfit_train_mixtures: 256
+tse_smallfit_val_mixtures: 128
+tse_smallfit_examples: 8
+tse_smallfit_background_candidates: 1024
+tse_smallfit_min_train_sources: 20
+tse_smallfit_min_val_sources: 8
+# 只限制采样；188 类词表、527 维 one-hot 和模型结构保持不变。
+tse_smallfit_mids:
+- /m/05tny_     # Bark
+- /m/07qrkrw   # Meow
+- /m/01b_21    # Cough
+- /m/01m2v     # Computer keyboard
+- /m/07pbtc8   # Walk, footsteps
+- /m/05r5c     # Piano
+- /m/0l15bq    # Clapping
+- /m/0ngt1     # Thunder
+
+# 只读重放 job39909 的样本；从随机权重开始，不加载它的 checkpoint。
+tse_smallfit_reference_run: /home/syy12632604/projects/TSE/experiments/tse_hierarchy_v2_smallfit/ailab01/run_b2_lr0.0001_e63_bf16-mixed_smallfit_s8000_smallfit8k_job39909
+# val_loss / 最佳 checkpoint / 调度器使用 A/B 平均；wrong 仅作独立评估与试听。

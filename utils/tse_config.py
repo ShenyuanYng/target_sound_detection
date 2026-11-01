@@ -12,12 +12,15 @@ def validate_tse_config(hp):
         validate_hierarchy_config(hp)
     expected = dict(task_type='tse', model_name='TSEDPRNNTF', loss_type='ratiol1' if dual else 'tse',
         feature_type='waveform', collate_type='sequence', samplerate=16000,
-        train_on_chunk=10., rms_norm=0, mix_normalization='peak',
+        train_on_chunk=10., mix_normalization='peak',
         mix_fsd_rms_mode='active', pad_back_or_front=0, test_after_fit=False,
         tse_hop=128)
     for name, value in expected.items():
         if getattr(hp, name, None) != value:
             raise ValueError(f'TSE v1 requires {name}={value!r}')
+    rms_modes = (0, 2) if getattr(hp, 'tse_smallfit', False) else (0,)
+    if type(getattr(hp, 'rms_norm', None)) is not int or hp.rms_norm not in rms_modes:
+        raise ValueError('rms_norm must be 0; fixed-mixture smallfit also supports teacher rms_norm=2')
     if hp.tse_window not in (256, 512):
         raise ValueError('TSE supports tse_window=256 or 512, with tse_hop=128')
     if hp.devices != 1:

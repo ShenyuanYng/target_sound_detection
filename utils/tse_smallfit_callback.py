@@ -109,6 +109,8 @@ class TSESmallfitCallback(Callback):
         directory.mkdir(parents=True, exist_ok=False)
         report = dict(global_step=step, epoch=int(trainer.current_epoch), initial=trainer.sanity_checking,
             learning_rate=trainer.optimizers[0].param_groups[0]['lr'],
+            loss_domain='mixture_std_normalized' if pl_module.hparams.rms_norm == 2 else 'original',
+            waveform_domain='original',
             inspection_point=step in (1000, 2000), **pl_module.eval_summary)
         write_json(directory/'metrics.json', report)
         with (self.root/'step_metrics.jsonl').open('a') as handle:
