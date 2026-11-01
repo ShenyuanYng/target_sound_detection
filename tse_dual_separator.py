@@ -124,7 +124,10 @@ class TSEDualSourceSeparator(TSESourceSeparator):
             self._reset_metrics(phase)
         mode = self._condition_mode(phase)
         selection = None
-        if mode == 'sampled_correct_wrong':
+        if mode == 'sampled_correct':
+            selection = torch.randint(2, (mixture.shape[0],), device=mixture.device)
+            names = ('correct',)
+        elif mode == 'sampled_correct_wrong':
             selection = (torch.rand(mixture.shape[0], device=mixture.device) >= 0.5).long()
             names = ('correct', 'wrong')
         elif mode == 'sampled_one':
@@ -144,7 +147,7 @@ class TSEDualSourceSeparator(TSESourceSeparator):
                                          for label in labels], dim=1)[rows, selection]
                 target = torch.stack([unpack_waveform(targets[f'target_{label}'])
                                       for label in labels], dim=1)[rows, selection]
-                weight = 2 / 3 if name == 'correct' else 1.
+                weight = 2 / 3 if mode == 'sampled_correct_wrong' else 1.
             else:
                 condition = unpack_waveform(inputs[f'condition_{name}'])
                 target = unpack_waveform(targets[f'target_{name}'])
@@ -174,7 +177,9 @@ class TSEDualSourceSeparator(TSESourceSeparator):
             return
         mode = self._condition_mode(phase)
         report = dict(epoch=self.current_epoch, groups=metric.compute(), condition_mode=mode,
-            objective=('RI_L1_Mag_L1_selected_condition; P(A)=P(B)=P(wrong)=1/3'
+            objective=('RI_L1_Mag_L1_selected_correct; P(A)=P(B)=1/2; no wrong training'
+                       if mode == 'sampled_correct' else
+                       'RI_L1_Mag_L1_selected_condition; P(A)=P(B)=P(wrong)=1/3'
                        if mode == 'sampled_one' else
                        '(2 * RI_L1_Mag_L1_selected_correct + RI_L1_Mag_L1_wrong) / 3'
                        if mode == 'sampled_correct_wrong' else

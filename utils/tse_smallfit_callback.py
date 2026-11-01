@@ -16,11 +16,20 @@ def write_json(path, value):
     temporary.replace(path)
 
 
-def summarize_scores(rows):
+def summarize_scores(rows, loss_conditions=('a', 'b', 'wrong')):
     if not rows:
         raise ValueError('Empty fixed-mixture evaluation')
+    if tuple(loss_conditions) not in (('a', 'b'), ('a', 'b', 'wrong')):
+        raise ValueError('Smallfit loss must average A/B or A/B/wrong')
     mean = lambda items, key: float(np.mean([row[key] for row in items]))
-    result = dict(mixtures=len(rows) // 3, queries=len(rows), loss=mean(rows, 'loss'), conditions={})
+    objective = [row for row in rows if row['condition'] in loss_conditions]
+    correct = [row for row in rows if row['condition'] in ('a', 'b')]
+    result = dict(mixtures=len(rows) // 3, queries=len(rows), loss=mean(objective, 'loss'),
+        loss_conditions=list(loss_conditions), loss_queries=len(objective),
+        correct_loss=mean(correct, 'loss'), all_conditions_loss=mean(rows, 'loss'), conditions={})
+    for key in ('oracle_loss', 'zero_loss', 'mixture_loss'):
+        if key in objective[0]:
+            result[key] = mean(objective, key)
     for name in ('a', 'b', 'wrong'):
         items = [row for row in rows if row['condition'] == name]
         values = dict(count=len(items), **{key: mean(items, key) for key in
@@ -40,9 +49,11 @@ def summarize_scores(rows):
     result['groups'] = {}
     for overlap in (False, True):
         items = [row for row in rows if row['overlap'] == overlap]
+        selected = [row for row in items if row['condition'] in loss_conditions]
         positive = [row for row in items if row['condition'] != 'wrong' and row['si_sdri_db'] is not None]
         result['groups']['overlap' if overlap else 'nonoverlap'] = dict(queries=len(items),
-            loss=mean(items, 'loss') if items else None,
+            loss=mean(selected, 'loss') if selected else None,
+            all_conditions_loss=mean(items, 'loss') if items else None,
             si_sdri_db=mean(positive, 'si_sdri_db') if positive else None)
     result['a_b_output_correlation'] = mean(rows, 'a_b_output_correlation')
     return result
@@ -138,7 +149,9 @@ class TSESmallfitCallback(Callback):
             trainer.save_checkpoint(checkpoints/f'step_{step:08d}.ckpt')
         scalars = {'smallfit/learning_rate': report['learning_rate']}
         for phase, summary in pl_module.eval_summary.items():
-            scalars[f'smallfit/{phase}/loss'] = summary['loss']
+            for key in ('loss', 'correct_loss', 'all_conditions_loss', 'oracle_loss', 'zero_loss', 'mixture_loss'):
+                if key in summary:
+                    scalars[f'smallfit/{phase}/{key}'] = summary[key]
             for name, values in summary['conditions'].items():
                 for key, value in values.items():
                     if value is not None:

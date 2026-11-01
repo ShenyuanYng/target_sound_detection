@@ -28,6 +28,7 @@ TensorBoard、指标、checkpoint 和调度日志。历史 TSE 实验留在原�
 | `tse_strong_dual_fsd_hierarchy_v2.yaml` | 层级标签归约后的 188 类版本 |
 | `tse_hierarchy_v2_pilot_10pct_bf16.yaml` | 保留现有 10%/BF16 pilot 设置与诊断 |
 | `tse_hierarchy_v2_smallfit.yaml` | 八类固定 256/128 条混音，8000 step 分离能力小训 |
+| `tse_hierarchy_v2_smallfit_correct.yaml` | 重放 job39909 的同一批混音，8000 step，仅 A/B 训练 |
 
 配置都在 `exp_defs/`。依赖版本见 `requirements.txt`；可继续使用现有 `audioset` 环境。
 
@@ -141,6 +142,38 @@ ReduceLROnPlateau 只在这些完整评估结束时读取新的 val_loss，patie
 
 此入口是单次分配的诊断训练，禁止续训或串行续作业；中断后使用新 run 从头启动。
 固定小训并非全类别效果评测；通过后再扩大类别/数据，并使用原完整验证集。
+
+### 去掉 wrong 训练的对照
+
+`tse_hierarchy_v2_smallfit_correct.yaml` 保留 batch=2、LR=1e-4、BF16、8000 step、
+原模型及 RI+Mag loss。`sampled_correct` 每条混音等概率选择 A 或 B，只有一次前向；
+所选条件的 loss 权重为 1，不沿用三条件实验的 2/3 权重。训练日志的 `count_wrong` 为 0。
+
+配置中的 `tse_smallfit_reference_run` 指向已经完成的 job39909，只读取它的固定样本清单，
+不加载权重或优化器。新 run 校验数据设置、源音频与混音代码哈希，并逐条重放校验裁剪、
+位置、增益及最终波形哈希。数据或参考清单不匹配时直接报错，不重新抽样替代。
+`fixed_data/summary.json` 记录参考清单路径、SHA-256 和相同的 `rows_sha256`。
+
+完整评估仍计算 A/B/wrong，并导出三种预测。主 `loss`、`val_loss`、最佳 checkpoint 和
+学习率调度只使用 A/B 平均；`loss_conditions` 明确记录 `[a, b]`。
+`correct_loss` 用于与旧实验的 `(loss_a + loss_b) / 2` 比较；
+`all_conditions_loss` 和 `conditions.wrong` 只供诊断，不参与选模或调度。
+step 0 的主 `zero_loss` 也按 A/B 平均，避免把三条件零输出基线混入比较。
+同样的 8000 更新下，正确目标监督次数预期增加 50%；该对照不能单独区分这一因素与移除静音负例的影响。
+
+更新服务器代码后，在登录节点、未进入其他 Slurm 作业时执行。实际训练分配到 **ailab01**：
+
+```bash
+cd /home/syy12632604/projects/TSE
+bash run.sh --stage 1 --use-slurm 1 \
+  --exp-def exp_defs/tse_hierarchy_v2_smallfit_correct.yaml \
+  --node ailab01 --num-jobs 1 --tag correct8k --manifest-tag correct8k_v1 \
+  --cpus 8 --mem 32G --time 1-00:00:00
+```
+
+去掉 `--stage 1` 可先只预览。新结果写入
+`experiments/tse_hierarchy_v2_smallfit/ailab01/run_b2_lr0.0001_e63_bf16-mixed_smallfit_s8000_correct8k_job<ID>/`，
+每 500 step 的评估、试听和 checkpoint 布局沿用前述小训。
 
 ## 检查与工具
 

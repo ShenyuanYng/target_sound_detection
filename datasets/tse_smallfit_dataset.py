@@ -48,7 +48,8 @@ class FixedMixtures(Dataset):
                 row['events'][i]['target_mid'] for row in manifest['rows']))
                 for i, name in enumerate(('a', 'b'))},
             wrong_counts=dict(Counter(row['wrong_mid'] for row in manifest['rows'])),
-            rows_sha256=manifest['rows_sha256'], source_audit=base.report)
+            rows_sha256=manifest['rows_sha256'], source_audit=base.report,
+            reference=manifest.get('reference'))
 
     def __len__(self):
         return len(self.samples)
@@ -125,9 +126,39 @@ def make_rows(base, mids, count, seed):
     return rows
 
 
+def read_reference_manifest(path, settings):
+    """Reuse only sample rows; retain current settings and verify every waveform on replay."""
+    saved = json.loads(path.read_text())
+    previous = saved.get('settings', {})
+    if (saved.get('schema') != 1 or digest(saved['rows']) != saved['rows_sha256']
+            or len(saved['rows']) != settings['mixtures']):
+        raise ValueError(f'Invalid reference smallfit manifest: {path}')
+    if {k: v for k, v in previous.items() if k != 'code'} != {
+            k: v for k, v in settings.items() if k != 'code'}:
+        raise ValueError(f'Reference smallfit data/settings differ: {path}')
+    # This module adds reference loading. The source readers, label rules and
+    # mixing implementations must still match the original run exactly.
+    mixing_code = lambda code: {k: v for k, v in code.items() if k != 'tse_smallfit_dataset.py'}
+    if mixing_code(previous.get('code', {})) != mixing_code(settings['code']):
+        raise ValueError(f'Reference smallfit mixing code changed: {path}')
+    return dict(schema=1, settings=settings, rows=saved['rows'], rows_sha256=saved['rows_sha256'],
+        reference=dict(manifest=str(path.resolve()), manifest_sha256=file_sha256(path),
+                       rows_sha256=saved['rows_sha256']))
+
+
 def build_fixed_datasets(hp, run):
     root = Path(run) / 'fixed_data'
     root.mkdir(parents=True, exist_ok=True)
+    reference = getattr(hp, 'tse_smallfit_reference_run', None)
+    if reference:
+        reference = Path(reference).resolve(strict=True)
+        if reference == Path(run).resolve():
+            raise ValueError('Reference samples must come from a different run')
+        if json.loads((reference/'.tse_run_created').read_text()).get('project') != 'TSE':
+            raise ValueError('Reference must be a standalone TSE run')
+        for partition in ('tr', 'cv'):
+            if not (reference/'fixed_data'/f'{partition}.json').is_file():
+                raise FileNotFoundError(f'Missing reference smallfit {partition} manifest: {reference}')
     pools = load_pools(hp)
     train_audit = _audit_train_pool(json.dumps(pools['train'], sort_keys=True))
     vocabulary = _condition_vocabulary(hp, pools['train'], train_audit)
@@ -175,11 +206,18 @@ def build_fixed_datasets(hp, run):
                    'tse_ontology.py', 'tse_hierarchy_labels.py', 'mix_utils.py', 'active_rms.py',
                    'fsd50k_cache.py', 'tse_dataset.py')})
         path = root/f'{partition}.json'
+        replay = read_reference_manifest(reference/'fixed_data'/f'{partition}.json', settings) if reference else None
         if path.exists():
             manifest = json.loads(path.read_text())
             if (manifest.get('settings') != settings or
                     digest(manifest['rows']) != manifest['rows_sha256'] or len(manifest['rows']) != size):
                 raise ValueError(f'Fixed data changed: {path}; create a new run')
+            if replay is not None and (manifest.get('reference') != replay['reference']
+                                      or manifest['rows_sha256'] != replay['rows_sha256']):
+                raise ValueError(f'Fixed data reference changed: {path}; create a new run')
+        elif replay is not None:
+            manifest = replay
+            _persist(path, manifest)
         else:
             rows = make_rows(base, mids, size, hp.mix_seed + (partition == 'cv'))
             manifest = dict(schema=1, settings=settings, rows=rows, rows_sha256=digest(rows))

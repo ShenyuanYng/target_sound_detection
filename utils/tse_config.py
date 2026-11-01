@@ -42,7 +42,8 @@ def validate_tse_config(hp):
     if dual:
         from utils.tse_runtime import RUNTIME_DEFAULTS, validate_runtime_overrides
         validate_runtime_overrides({name: getattr(hp, name, default)
-                                    for name, default in RUNTIME_DEFAULTS.items()})
+                                    for name, default in RUNTIME_DEFAULTS.items()},
+                                   allow_correct_only=getattr(hp, 'tse_smallfit', False))
         for name, default in (('tse_log_batch_loss', False), ('tse_record_overlap_loss', True)):
             if type(getattr(hp, name, default)) is not bool:
                 raise ValueError(f'{name} must be a boolean')

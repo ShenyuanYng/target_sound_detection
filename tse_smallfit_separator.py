@@ -106,7 +106,10 @@ class TSESmallfitSeparator(TSEDualSourceSeparator):
                     item['a_b_output_correlation'] = correlation
 
     def on_validation_epoch_end(self):
-        self.eval_summary = {phase: summarize_scores(rows) for phase, rows in self.eval_rows.items()}
+        conditions = (('a', 'b') if self.hparams.tse_train_condition_mode == 'sampled_correct'
+                      else ('a', 'b', 'wrong'))
+        self.eval_summary = {phase: summarize_scores(rows, loss_conditions=conditions)
+                             for phase, rows in self.eval_rows.items()}
         for phase, summary in self.eval_summary.items():
             self.log(f'{phase}_loss', summary['loss'], add_dataloader_idx=False)
         if not self.trainer.sanity_checking:

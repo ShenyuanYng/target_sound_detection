@@ -8,11 +8,16 @@ def validate_smallfit_config(hp):
     expected = dict(dataset='audioset_strong_dual_fsd_hierarchy_tse_v2',
         tse_pilot_artifacts=False, train_percent_check=1.0, val_percent_check=1.0,
         accumulate_grad_batches=1, tse_condition_backward='combined',
-        tse_train_condition_mode='sampled_one', num_sanity_val_steps=-1,
+        num_sanity_val_steps=-1,
         tse_no_pair_policy='exclude')
     for key, value in expected.items():
         if getattr(hp, key, None) != value:
             raise ValueError(f'Fixed-mixture smallfit requires {key}={value!r}')
+    if getattr(hp, 'tse_train_condition_mode', None) not in ('sampled_one', 'sampled_correct'):
+        raise ValueError('Smallfit samples one condition per mixture: sampled_one or sampled_correct')
+    reference = getattr(hp, 'tse_smallfit_reference_run', None)
+    if reference is not None and (not isinstance(reference, str) or not reference.strip()):
+        raise ValueError('tse_smallfit_reference_run must name an existing standalone smallfit run')
     for key in ('train_percent_check', 'val_percent_check'):
         if type(getattr(hp, key)) is not float:
             raise ValueError(f'{key} must be float 1.0, not integer 1 batch')
